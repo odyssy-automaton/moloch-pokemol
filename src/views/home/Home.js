@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Query } from 'react-apollo';
-import { withApollo } from 'react-apollo';
+import { Query, withApollo } from 'react-apollo';
 import { ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 import { GET_METADATA } from '../../utils/Queries';
@@ -115,8 +114,8 @@ const Home = ({ client }) => {
 
             <div className="Home">
               <div className="Intro">
-                <h1>PokéMol DAO</h1>
-                <p>Put a Moloch in Your Pocket</p>
+                <h1>Moloch</h1>
+                <p>Moloch DAO</p>
               </div>
               <div className="Chart" style={{ width: '100%', height: '33vh' }}>
                 <ResponsiveContainer>
