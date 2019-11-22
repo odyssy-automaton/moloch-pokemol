@@ -1,4 +1,4 @@
-service: <your service name here>
+service: moloch-pokemol-v1
 
 plugins:
   - serverless-single-page-app-plugin
