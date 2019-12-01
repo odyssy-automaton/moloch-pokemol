@@ -3,6 +3,7 @@ import { Link, withRouter } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Auth, Storage } from 'aws-amplify';
 import shortid from 'shortid';
+import Web3 from 'web3';
 
 import {
   SdkEnvironmentNames,
@@ -252,8 +253,20 @@ const SignIn = (props) => {
           );
         }}
       </Formik>
+
+      <button onClick={web3SignIn}>Sign In With Web3</button>
     </div>
   );
 };
+
+async function web3SignIn() {
+  if (typeof window.ethereum !== 'undefined') {
+    const accounts = await window.ethereum.enable();
+    const account = accounts[0];
+    const web3 = new Web3(window.ethereum);
+    console.log(await web3.eth.getBlockNumber());
+    console.log(await web3.eth.getAccounts());
+  }
+}
 
 export default withRouter(SignIn);
