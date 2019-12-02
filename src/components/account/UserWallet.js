@@ -36,7 +36,7 @@ const UserWallet = () => {
   return (
     <>
       {loading && <Loading />}
-      {currentUser && currentUser.sdk && (
+      {currentUser && (
         <div className="UserWallet">
           <StateModals />
 

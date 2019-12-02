@@ -57,40 +57,59 @@ const Store = ({ children }) => {
     // runs on app load, sets up user auth and sdk
     const currentUser = async () => {
       try {
-        // check if user is authenticated
-        // try will throw if not
-        const user = await Auth.currentAuthenticatedUser();
-        // attributes are only updated here until re-auth
-        // so grab attributes from here
-        const attributes = await Auth.currentUserInfo();
-        const realuser = { ...user, ...{ attributes: attributes.attributes } };
+        const loginType = localStorage.getItem('loginType');
+        if (loginType === 'web3') {
+          try {
+            const accounts = await window.ethereum.enable();
+            const account = accounts[0];
+            setCurrentUser({
+              loginType: 'web3',
+              attributes: { 'custom:account_address': account },
+              username: account,
+            });
+          } catch (e) {
+            console.log(`Could not log in with Web3: ${e.toString()}`);
+            localStorage.setItem('loginType', undefined);
+          }
+        } else {
+          // check if user is authenticated
+          // try will throw if not
+          const user = await Auth.currentAuthenticatedUser();
+          // attributes are only updated here until re-auth
+          // so grab attributes from here
+          const attributes = await Auth.currentUserInfo();
+          const realuser = {
+            ...user,
+            ...{ attributes: attributes.attributes },
+          };
 
-        setCurrentUser(realuser);
+          setCurrentUser(realuser);
 
-        // attach sdk
-        // console.log("in load: realuser", realuser);
-        const sdkEnv = getSdkEnvironment(
-          SdkEnvironmentNames[`${config.SDK_ENV}`],
-        );
-        // check or set up local storage and initialize sdk connection
-        const sdk = new createSdk(
-          sdkEnv.setConfig('storageAdapter', localStorage),
-        );
-        await sdk.initialize();
-        // check if account is connected in local storage
-
-        const accounts = await sdk.getConnectedAccounts();
-        // if the there is an account connect it
-        // this should never not exsist, it is added to AWS on first signin
-        if (accounts.items.length) {
-          await sdk.connectAccount(
-            realuser.attributes['custom:account_address'],
+          // attach sdk
+          // console.log("in load: realuser", realuser);
+          const sdkEnv = getSdkEnvironment(
+            SdkEnvironmentNames[`${config.SDK_ENV}`],
           );
+          // check or set up local storage and initialize sdk connection
+          const sdk = new createSdk(
+            sdkEnv.setConfig('storageAdapter', localStorage),
+          );
+          await sdk.initialize();
+          // check if account is connected in local storage
+
+          const accounts = await sdk.getConnectedAccounts();
+          // if the there is an account connect it
+          // this should never not exsist, it is added to AWS on first signin
+          if (accounts.items.length) {
+            await sdk.connectAccount(
+              realuser.attributes['custom:account_address'],
+            );
+          }
+          // store sdk instance (needed?)
+          // setUserSdk(sdk);
+          // add sdk instance to current user
+          setCurrentUser({ ...realuser, ...{ sdk } });
         }
-        // store sdk instance (needed?)
-        //setUserSdk(sdk);
-        // add sdk instance to current user
-        setCurrentUser({ ...realuser, ...{ sdk } });
       } catch (err) {
         console.log(err);
       }
@@ -99,7 +118,7 @@ const Store = ({ children }) => {
     currentUser();
   }, []);
 
-  //global polling service
+  // global polling service
   useInterval(async () => {
     // run on interval defined by $delay only if authenticated
     if (currentUser) {
@@ -146,7 +165,7 @@ const Store = ({ children }) => {
       //     could i check earlier that there is no account info
       //     not with getConnectedDevices because it errors before account connected
       if (sdk && sdk.state.account) {
-        //console.log('connected state', sdk.state);
+        // console.log('connected state', sdk.state);
 
         ethWei = (sdk && sdk.state.account.balance.real.toString()) || 0;
         eth = web3Service.fromWei(ethWei);
@@ -160,11 +179,17 @@ const Store = ({ children }) => {
         state = sdk && sdk.state.account.state;
         // console.log('state', state);
 
-        //console.log('when connected?', sdk && sdk.state.account.state);
+        // console.log('when connected?', sdk && sdk.state.account.state);
         // set delay to 10 seconds after sdk balance is updated
         setDelay(10000);
+      } else if (currentUser.loginType === "web3") {
+        ethWei = await web3Service.getBalance(acctAddr);
+        eth = web3Service.fromWei(ethWei);
+        setLoading(false);
+
+        setDelay(10000);
       } else {
-        //console.log('not connected, try again', sdk);
+        // console.log('not connected, try again', sdk);
         state = WalletStatuses.Connecting;
 
         setNumTries(numTries + 1);

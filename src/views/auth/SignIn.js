@@ -3,7 +3,6 @@ import { Link, withRouter } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Auth, Storage } from 'aws-amplify';
 import shortid from 'shortid';
-import Web3 from 'web3';
 
 import {
   SdkEnvironmentNames,
@@ -19,14 +18,25 @@ import Web3Service from '../../utils/Web3Service';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
 
-const SignIn = (props) => {
-  const { history } = props;
+const SignIn = ({ history }) => {
   const [, setCurrentUser] = useContext(CurrentUserContext);
   const [authError, setAuthError] = useState();
   const [pseudonymTouch, setPseudonymTouch] = useState(false);
   const [passwordTouch, setPasswordTouch] = useState(false);
 
-  let historyState = history.location.state;
+  const historyState = history.location.state;
+
+  const web3SignIn = async () => {
+    const accounts = await window.ethereum.enable();
+    const account = accounts[0];
+    setCurrentUser({
+      type: 'web3',
+      attributes: { 'custom:account_address': account },
+      username: account,
+    });
+    localStorage.setItem('loginType', 'web3');
+    history.push('/proposals');
+  };
 
   return (
     <div>
@@ -47,7 +57,7 @@ const SignIn = (props) => {
       <Formik
         initialValues={{ username: '', password: '' }}
         validate={(values) => {
-          let errors = {};
+          const errors = {};
           if (!values.username) {
             errors.username = 'Required';
           }
@@ -195,7 +205,8 @@ const SignIn = (props) => {
           return (
             <Form className="Form">
               <h2>Sign in</h2>
-              <Link to="/sign-up">Create a new account =></Link>
+              <button onClick={web3SignIn}>Sign In With Web3</button>
+              <Link to="/sign-up">Create a new account &gt;</Link>
               {authError && (
                 <div className="Form__auth-error">
                   <p className="Danger">{authError.message}</p>
@@ -253,20 +264,8 @@ const SignIn = (props) => {
           );
         }}
       </Formik>
-
-      <button onClick={web3SignIn}>Sign In With Web3</button>
     </div>
   );
 };
-
-async function web3SignIn() {
-  if (typeof window.ethereum !== 'undefined') {
-    const accounts = await window.ethereum.enable();
-    const account = accounts[0];
-    const web3 = new Web3(window.ethereum);
-    console.log(await web3.eth.getBlockNumber());
-    console.log(await web3.eth.getAccounts());
-  }
-}
 
 export default withRouter(SignIn);
