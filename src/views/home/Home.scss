@@ -2,7 +2,14 @@
 
 .Home {
     width: 100%;
+    background-color: rgba(0,0,0,0.95);
+    height: calc(100vh - 62px);
     text-align: center; 
+    position: relative;
+    // Background
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
     img { width: 200px; }
     h1 {
         text-align: center;
@@ -49,5 +56,5 @@
     // max-width: 420px;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: -1;
+    z-index: 0;
 }
