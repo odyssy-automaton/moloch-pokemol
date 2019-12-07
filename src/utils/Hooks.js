@@ -8,6 +8,7 @@ export const useWeb3SignIn = () => {
 
   const setWeb3SignIn = async (set, setCurrentUser) => {
     if (set) {
+      console.trace();
       const accounts = await window.ethereum.enable();
       const account = accounts[0];
       const providerChainId = await web3Service.web3.eth.getChainId();
@@ -24,6 +25,7 @@ export const useWeb3SignIn = () => {
       window.ethereum.on('chainChanged', () => {
         document.location.reload();
       });
+      window.ethereum.autoRefreshOnNetworkChange = false;
 
       setCurrentUser({
         type: 'web3',
