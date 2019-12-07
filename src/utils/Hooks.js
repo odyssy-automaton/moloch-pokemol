@@ -8,7 +8,6 @@ export const useWeb3SignIn = () => {
 
   const setWeb3SignIn = async (set, setCurrentUser) => {
     if (set) {
-      console.trace();
       const accounts = await window.ethereum.enable();
       const account = accounts[0];
       const providerChainId = await web3Service.web3.eth.getChainId();
@@ -27,16 +26,20 @@ export const useWeb3SignIn = () => {
       });
       window.ethereum.autoRefreshOnNetworkChange = false;
 
-      setCurrentUser({
-        type: 'web3',
-        attributes: { 'custom:account_address': account },
-        username: account,
-      });
+      if (setCurrentUser) {
+        setCurrentUser({
+          type: 'web3',
+          attributes: { 'custom:account_address': account },
+          username: account,
+        });
+      }
       localStorage.setItem('loginType', 'web3');
       setWeb3(true);
       return true;
     } else {
-      setCurrentUser();
+      if (setCurrentUser) {
+        setCurrentUser();
+      }
       localStorage.setItem('loginType', undefined);
       setWeb3(false);
       return false;
