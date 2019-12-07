@@ -15,8 +15,11 @@ import config from '../../config';
 import { CurrentUserContext } from '../../contexts/Store';
 import Loading from '../../components/shared/Loading';
 import Web3Service from '../../utils/Web3Service';
+import { Web3SignIn } from '../../components/account/Web3SignIn';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
+
+const web3Service = new Web3Service();
 
 const SignIn = ({ history }) => {
   const [, setCurrentUser] = useContext(CurrentUserContext);
@@ -25,18 +28,6 @@ const SignIn = ({ history }) => {
   const [passwordTouch, setPasswordTouch] = useState(false);
 
   const historyState = history.location.state;
-
-  const web3SignIn = async () => {
-    const accounts = await window.ethereum.enable();
-    const account = accounts[0];
-    setCurrentUser({
-      type: 'web3',
-      attributes: { 'custom:account_address': account },
-      username: account,
-    });
-    localStorage.setItem('loginType', 'web3');
-    history.push('/proposals');
-  };
 
   return (
     <div>
@@ -68,8 +59,6 @@ const SignIn = ({ history }) => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting }) => {
-          const web3Service = new Web3Service();
-
           try {
             const user = await Auth.signIn({
               username: values.username,
@@ -110,7 +99,7 @@ const SignIn = ({ history }) => {
               try {
                 sdk.connectAccount(user.attributes['custom:account_address']);
 
-                //currentUserInfo returns the correct attributes
+                // currentUserInfo returns the correct attributes
                 const attributes = await Auth.currentUserInfo();
                 const realuser = {
                   ...user,
@@ -205,7 +194,7 @@ const SignIn = ({ history }) => {
           return (
             <Form className="Form">
               <h2>Sign in</h2>
-              <button onClick={web3SignIn}>Sign In With Web3</button>
+              <Web3SignIn history={history} setCurrentUser={setCurrentUser} />
               <Link to="/sign-up">Create a new account &gt;</Link>
               {authError && (
                 <div className="Form__auth-error">

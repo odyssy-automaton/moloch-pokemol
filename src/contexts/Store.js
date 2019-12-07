@@ -15,6 +15,7 @@ import Web3Service from '../utils/Web3Service';
 import McDaoService from '../utils/McDaoService';
 import BcProcessorService from '../utils/BcProcessorService';
 import { WalletStatuses, currentStatus } from '../utils/WalletStatus';
+import { useWeb3SignIn } from '../utils/Hooks';
 
 export const CurrentUserContext = createContext();
 export const CurrentWalletContext = createContext();
@@ -26,6 +27,8 @@ export const RefreshContext = createContext();
 const Store = ({ children }) => {
   // store of aws auth information and sdk
   const [currentUser, setCurrentUser] = useState();
+  // web3 hook
+  const [web3SignIn, setWeb3SignIn] = useWeb3SignIn();
   // stores user wallet balances and shares
   const [currentWallet, setCurrentWallet] = useState({
     eth: 0,
@@ -55,23 +58,24 @@ const Store = ({ children }) => {
 
   useEffect(() => {
     // runs on app load, sets up user auth and sdk
-    const currentUser = async () => {
+    // RS: needed to change this to take in some deps bc otherwise navigating to
+    // account screen after signing in
+    const initCurrentUser = async () => {
       try {
-        const loginType = localStorage.getItem('loginType');
-        if (loginType === 'web3') {
+        // do nothing if user is set
+        if (currentUser) {
+          return;
+        }
+        if (web3SignIn) {
+          console.log(`Web3 init`);
           try {
-            const accounts = await window.ethereum.enable();
-            const account = accounts[0];
-            setCurrentUser({
-              loginType: 'web3',
-              attributes: { 'custom:account_address': account },
-              username: account,
-            });
+            await setWeb3SignIn(true, setCurrentUser);
           } catch (e) {
             console.log(`Could not log in with Web3: ${e.toString()}`);
             localStorage.setItem('loginType', undefined);
           }
         } else {
+          console.log(`SDK init`);
           // check if user is authenticated
           // try will throw if not
           const user = await Auth.currentAuthenticatedUser();
@@ -115,8 +119,8 @@ const Store = ({ children }) => {
       }
     };
 
-    currentUser();
-  }, []);
+    initCurrentUser();
+  }, [web3SignIn, currentUser, setWeb3SignIn]);
 
   // global polling service
   useInterval(async () => {
@@ -182,10 +186,13 @@ const Store = ({ children }) => {
         // console.log('when connected?', sdk && sdk.state.account.state);
         // set delay to 10 seconds after sdk balance is updated
         setDelay(10000);
-      } else if (currentUser.loginType === "web3") {
+      } else if (web3SignIn) {
         ethWei = await web3Service.getBalance(acctAddr);
         eth = web3Service.fromWei(ethWei);
         setLoading(false);
+
+        // web3 wallet is always connected if we're here
+        state = WalletStatuses.Connected;
 
         setDelay(10000);
       } else {
