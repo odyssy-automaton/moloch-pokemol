@@ -79,6 +79,7 @@ const SignUp = ({ history }) => {
           return (
             <Form className="Form">
               <h2 className="Pad">New Account</h2>
+              <Web3SignIn history={history} />
               <button className="RiskyBiz Short">
                 <span role="alert" aria-label="skull and crossbones">
                   ☠
@@ -148,7 +149,6 @@ const SignUp = ({ history }) => {
               >
                 Submit
               </button>
-              <Web3SignIn />
             </Form>
           );
         }}
