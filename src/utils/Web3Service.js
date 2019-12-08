@@ -13,11 +13,9 @@ export default class Web3Service {
     return singleton;
   }
 
-  constructor(useInjected) {
-    console.log(`Injected web3: ${useInjected}`);
-    console.trace()
-    if (useInjected) {
-      this.web3 = new Web3(window.ethereum);
+  constructor(injected) {
+    if (injected) {
+      this.web3 = new Web3(injected);
     } else {
       this.web3 = new Web3(new Web3.providers.HttpProvider(config.INFURA_URI));
     }

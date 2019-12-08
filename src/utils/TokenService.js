@@ -1,50 +1,25 @@
-import Web3Service from '../utils/Web3Service';
 import Erc20Abi from '../contracts/erc20a.json';
 
 export default class WethService {
-  contractAddr;
-  web3Service;
+  web3;
   contract;
-  abi;
 
-  constructor(daoToken) {
-    this.web3Service = Web3Service.create();
-    this.abi = Erc20Abi;
-    this.contractAddr = daoToken;
-
-    this.initContract();
-  }
-
-  async initContract() {
-    this.contract = await this.web3Service.initContract(
-      this.abi,
-      this.contractAddr,
-    );
-    return this.contract;
+  constructor(web3, daoToken) {
+    this.web3 = web3;
+    this.contract = new web3.eth.Contract(Erc20Abi, daoToken);
   }
 
   async getSymbol() {
-    if (!this.contract) {
-      await this.initContract();
-    }
-
     const symbol = await this.contract.methods.symbol().call();
     return symbol;
   }
 
   async totalSupply() {
-    if (!this.contract) {
-      await this.initContract();
-    }
     const totalSupply = await this.contract.methods.totalSupply().call();
     return totalSupply;
   }
 
   async balanceOf(account, atBlock = 'latest') {
-    if (!this.contract) {
-      await this.initContract();
-    }
-
     const balanceOf = await this.contract.methods
       .balanceOf(account)
       .call({}, atBlock);
@@ -53,9 +28,6 @@ export default class WethService {
   }
 
   async allowance(accountAddr, contractAddr) {
-    if (!this.contract) {
-      await this.initContract();
-    }
     const allowance = await this.contract.methods
       .allowance(accountAddr, contractAddr)
       .call();
@@ -64,10 +36,6 @@ export default class WethService {
 
   async approve(from, guy, wad, encodedPayload) {
     // guy should be moloch contract
-    if (!this.contract) {
-      await this.initContract();
-    }
-
     if (encodedPayload) {
       const data = this.contract.methods.approve(guy, wad).encodeABI();
       return data;
@@ -89,16 +57,12 @@ export default class WethService {
   }
 
   async deposit(from, amount, encodedPayload) {
-    if (!this.contract) {
-      await this.initContract();
-    }
-
     if (encodedPayload) {
       const data = this.contract.methods.deposit().encodeABI();
       return data;
     }
 
-    let deposit = this.contract.methods
+    const deposit = this.contract.methods
       .deposit()
       .send({ from, value: amount })
       .once('transactionHash', (txHash) => {})
@@ -114,10 +78,6 @@ export default class WethService {
   }
 
   async transfer(from, dist, wad, encodedPayload) {
-    if (!this.contract) {
-      await this.initContract();
-    }
-
     if (encodedPayload) {
       const data = this.contract.methods.transfer(dist, wad).encodeABI();
       return data;

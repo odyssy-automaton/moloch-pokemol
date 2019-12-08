@@ -8,15 +8,12 @@ import { GET_PROPOSAL_QUERY } from '../../utils/ProposalService';
 import ProposalDetail from '../../components/proposal/ProposalDetail';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import Loading from '../../components/shared/Loading';
-import McDaoService from '../../utils/McDaoService';
-import Web3Service from '../../utils/Web3Service';
-import BcProcessorService from '../../utils/BcProcessorService';
-import { useWeb3SignIn } from '../../utils/Hooks';
 
 import {
   LoaderContext,
   CurrentWalletContext,
   CurrentUserContext,
+  DaoServiceContext,
 } from '../../contexts/Store';
 
 const Proposal = (props) => {
@@ -24,18 +21,14 @@ const Proposal = (props) => {
   const [txLoading, setTxLoading] = useContext(LoaderContext);
   const [currentUser] = useContext(CurrentUserContext);
   const [currentWallet] = useContext(CurrentWalletContext);
-  const [web3SignedIn] = useWeb3SignIn();
-
-  const dao = new McDaoService();
-  const web3Service = Web3Service.create();
-  const bcprocessor = new BcProcessorService();
+  const [daoService] = useContext(DaoServiceContext);
 
   const processProposal = (id) => {
     const sdk = currentUser.sdk;
     const bnZed = ethToWei(0);
 
     setTxLoading(true);
-    dao
+    daoService.mcDao
       .processProposal(
         currentUser.attributes['custom:account_address'],
         id,
@@ -43,11 +36,11 @@ const Proposal = (props) => {
       )
       .then((data) => {
         sdk
-          .estimateAccountTransaction(dao.contractAddr, bnZed, data)
+          .estimateAccountTransaction(daoService.daoAddress, bnZed, data)
           .then((estimated) => {
             if (ethToWei(currentWallet.eth).lt(estimated.totalCost)) {
               alert(
-                `you need more gas, at least: ${web3Service.fromWei(
+                `you need more gas, at least: ${daoService.web3.utils.fromWei(
                   estimated.totalCost.toString(),
                 )}`,
               );
@@ -57,7 +50,7 @@ const Proposal = (props) => {
             sdk
               .submitAccountTransaction(estimated)
               .then((hash) => {
-                bcprocessor.setTx(
+                daoService.bcProcessor.setTx(
                   hash,
                   currentUser.attributes['custom:account_address'],
                   `Proccess proposal. id: ${id}`,
