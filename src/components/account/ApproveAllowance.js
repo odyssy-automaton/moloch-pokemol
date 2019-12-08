@@ -15,9 +15,11 @@ import {
   CurrentWalletContext,
   LoaderContext,
 } from '../../contexts/Store';
+import { useWeb3SignIn } from '../../utils/Hooks';
 
 const ApproveAllowance = ({ client }) => {
   const [currentUser] = useContext(CurrentUserContext);
+  const [web3SignIn] = useWeb3SignIn();
   const [loading, setLoading] = useContext(LoaderContext);
   const [currentWallet] = useContext(CurrentWalletContext);
   const [formSuccess, setFormSuccess] = useState(false);
@@ -50,7 +52,7 @@ const ApproveAllowance = ({ client }) => {
           const sdk = currentUser.sdk;
           const tokenService = new TokenService(approvedToken);
           const daoService = new McDaoService();
-          const web3Service = new Web3Service();
+          const web3Service = Web3Service.create();
           const bcprocessor = new BcProcessorService();
 
           const bnZed = ethToWei(0);

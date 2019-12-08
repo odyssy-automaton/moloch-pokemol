@@ -48,7 +48,7 @@ const WithdrawForm = ({ client }) => {
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           const sdk = currentUser.sdk;
           const tokenService = new TokenService(approvedToken);
-          const web3Service = new Web3Service();
+          const web3Service = Web3Service.create();
           const bcprocessor = new BcProcessorService();
 
           const bnZed = ethToWei(0);

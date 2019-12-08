@@ -2,9 +2,25 @@ import Web3 from 'web3';
 
 import config from '../config';
 
+let singleton;
+
 export default class Web3Service {
-  constructor() {
-    this.web3 = new Web3(new Web3.providers.HttpProvider(config.INFURA_URI));
+  // make singleton
+  static create(useInjected) {
+    if (!singleton) {
+      singleton = new Web3Service(useInjected);
+    }
+    return singleton;
+  }
+
+  constructor(useInjected) {
+    console.log(`Injected web3: ${useInjected}`);
+    console.trace()
+    if (useInjected) {
+      this.web3 = new Web3(window.ethereum);
+    } else {
+      this.web3 = new Web3(new Web3.providers.HttpProvider(config.INFURA_URI));
+    }
   }
 
   getKeyStore(privateKey, password) {

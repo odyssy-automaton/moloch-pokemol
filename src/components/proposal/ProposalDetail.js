@@ -16,8 +16,6 @@ import ValueDisplay from '../shared/ValueDisplay';
 
 import './ProposalDetail.scss';
 
-const web3Service = new Web3Service();
-
 const ProposalDetail = ({
   proposal,
   processProposal,
@@ -25,6 +23,7 @@ const ProposalDetail = ({
   canVote,
   client,
 }) => {
+  const web3Service = Web3Service.create();
   const [s3Data, setS3Data] = useState({});
   const [currentUser] = useContext(CurrentUserContext);
   const { periodDuration } = client.cache.readQuery({

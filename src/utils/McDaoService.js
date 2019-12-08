@@ -10,7 +10,7 @@ export default class McDaoService {
 
   constructor() {
     this.contractAddr = config.CONTRACT_ADDRESS;
-    this.web3Service = new Web3Service();
+    this.web3Service = Web3Service.create();
     this.daoAbi = DaoAbi;
 
     this.initContract();
@@ -141,18 +141,13 @@ export default class McDaoService {
       return data;
     }
 
-    let vote = this.contract.methods
+    return this.contract.methods
       .submitVote(proposalIndex, uintVote)
       .send({ from })
-      .once('transactionHash', (txHash) => {})
-      .then((resp) => {
-        return resp;
-      })
       .catch((err) => {
         console.log(err);
         return { error: 'rejected transaction' };
       });
-    return vote;
   }
 
   async rageQuit(from, amount, encodedPayload) {

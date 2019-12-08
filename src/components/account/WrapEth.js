@@ -52,7 +52,7 @@ const WrapEth = () => {
           onSubmit={async (values, { setSubmitting, resetForm }) => {
             const sdk = currentUser.sdk;
             const wethService = new WethService();
-            const web3Service = new Web3Service();
+            const web3Service = Web3Service.create();
             const bcprocessor = new BcProcessorService();
             const bnAmount = ethToWei(values.amount);
 

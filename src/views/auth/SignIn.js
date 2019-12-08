@@ -19,9 +19,9 @@ import { Web3SignIn } from '../../components/account/Web3SignIn';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
 
-const web3Service = new Web3Service();
-
 const SignIn = ({ history }) => {
+  const web3Service = Web3Service.create();
+
   const [, setCurrentUser] = useContext(CurrentUserContext);
   const [authError, setAuthError] = useState();
   const [pseudonymTouch, setPseudonymTouch] = useState(false);

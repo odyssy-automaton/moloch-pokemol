@@ -24,7 +24,7 @@ const Home = ({ client }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const web3Service = new Web3Service();
+      const web3Service = Web3Service.create();
       const tokenService = new TokenService(approvedToken);
       const mcDao = new McDaoService();
 

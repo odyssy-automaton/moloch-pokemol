@@ -6,10 +6,10 @@ import ValueDisplay from '../shared/ValueDisplay';
 
 import './MemberDetail.scss';
 
-const web3Service = new Web3Service();
 
 const MemberDetail = ({ member }) => {
   const [s3Data, setS3Data] = useState({});
+  const web3Service = Web3Service.create();
 
   useEffect(() => {
     const fetchData = async () => {

@@ -8,10 +8,12 @@ import Loading from '../components/shared/Loading';
 import Web3Service from '../utils/Web3Service';
 import config from '../config';
 import { CurrentUserContext } from '../contexts/Store';
+import { useWeb3SignIn } from '../utils/Hooks';
 
 const UpgradeKeystore = () => {
   //component used for changing password
   const [currentUser, setCurrentUser] = useContext(CurrentUserContext);
+  const [web3SignIn] = useWeb3SignIn();
 
   const [authError, setAuthError] = useState();
   const [authSuccess, setAuthSuccess] = useState(false);
@@ -32,7 +34,7 @@ const UpgradeKeystore = () => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting }) => {
-          const web3Service = new Web3Service();
+          const web3Service = Web3Service.create();
 
           try {
             const user = await Auth.currentAuthenticatedUser();

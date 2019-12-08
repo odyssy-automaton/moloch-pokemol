@@ -52,7 +52,7 @@ const Store = ({ children }) => {
   // track number of times to do a 1 second update
   const [numTries, setNumTries] = useState(0);
 
-  const web3Service = new Web3Service();
+  const web3Service = Web3Service.create(!!web3SignIn);
   const daoService = new McDaoService();
   const bcProcessorService = new BcProcessorService();
 

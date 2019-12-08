@@ -8,7 +8,7 @@ export default class WethService {
   abi;
 
   constructor(daoToken) {
-    this.web3Service = new Web3Service();
+    this.web3Service = Web3Service.create();
     this.abi = Erc20Abi;
     this.contractAddr = daoToken;
 

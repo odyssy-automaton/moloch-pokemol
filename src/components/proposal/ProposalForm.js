@@ -57,7 +57,7 @@ const ProposalForm = (props) => {
             }}
             onSubmit={async (values, { setSubmitting }) => {
               const dao = new McDaoService();
-              const web3Service = new Web3Service();
+              const web3Service = Web3Service.create();
               const bcprocessor = new BcProcessorService();
 
               const bnZed = ethToWei(0);

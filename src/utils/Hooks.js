@@ -3,7 +3,7 @@ import Web3Service from './Web3Service';
 
 export const useWeb3SignIn = () => {
   const web3LoggedIn = localStorage.getItem('loginType') === 'web3';
-  const web3Service = new Web3Service();
+  const web3Service = Web3Service.create(web3LoggedIn);
   const [web3SignIn, setWeb3] = useState(web3LoggedIn);
 
   const setWeb3SignIn = async (set, setCurrentUser) => {

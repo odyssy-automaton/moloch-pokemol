@@ -28,7 +28,7 @@ const ExportKeyStore = () => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
-          const web3Service = new Web3Service();
+          const web3Service = Web3Service.create();
           const network = config.SDK_ENV.toLowerCase();
           const aValue = JSON.parse(
             localStorage.getItem(`@archanova:${network}:device:private_key`),

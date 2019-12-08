@@ -9,12 +9,13 @@ import Web3Service from './utils/Web3Service';
 import TokenService from './utils/TokenService';
 
 import './App.scss';
-
-const mcDao = new McDaoService();
-const web3 = new Web3Service();
+import { useWeb3SignIn } from './utils/Hooks';
 
 const App = ({ client }) => {
   const [loading, setloading] = useState(true);
+  const [web3SignIn] = useWeb3SignIn();
+  const web3 = Web3Service.create(!!web3SignIn);
+  const mcDao = new McDaoService();
 
   useEffect(() => {
     // save all web3 data to apollo cache

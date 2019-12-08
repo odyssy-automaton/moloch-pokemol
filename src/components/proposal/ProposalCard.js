@@ -13,9 +13,9 @@ import ValueDisplay from '../shared/ValueDisplay';
 
 import './ProposalCard.scss';
 
-const web3Service = new Web3Service();
 
 const ProposalCard = ({ proposal, client }) => {
+  const web3Service = Web3Service.create();
   const { periodDuration } = client.cache.readQuery({
     query: GET_METADATA,
   });

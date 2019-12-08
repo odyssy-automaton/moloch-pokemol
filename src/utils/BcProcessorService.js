@@ -3,7 +3,7 @@ import Web3Service from './Web3Service';
 export default class BcProcessorService {
   web3Service;
   constructor() {
-    this.web3Service = new Web3Service();
+    this.web3Service = Web3Service.create();
   }
 
   async checkTransaction(transactionHash, account) {

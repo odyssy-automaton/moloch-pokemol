@@ -41,7 +41,7 @@ const WithdrawEthForm = () => {
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           const sdk = currentUser.sdk;
-          const web3Service = new Web3Service();
+          const web3Service = Web3Service.create();
           const bcprocessor = new BcProcessorService();
 
           const bnAmmount = ethToWei(values.amount);
