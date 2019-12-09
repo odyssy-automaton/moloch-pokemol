@@ -59,7 +59,6 @@ const Store = ({ children }) => {
               user.attributes['custom:account_address'],
               window.ethereum,
             );
-            setDaoService(dao);
             break;
           case 'sdk':
           default:
@@ -68,7 +67,6 @@ const Store = ({ children }) => {
               user.attributes['custom:account_address'],
               user.sdk,
             );
-            setDaoService(dao);
             break;
         }
         setCurrentUser(user);
@@ -77,6 +75,9 @@ const Store = ({ children }) => {
         console.log(
           `Could not log in with loginType ${loginType}: ${e.toString()}`,
         );
+        dao = await DaoService.instantiateWithSDK();
+      } finally {
+        setDaoService(dao);
       }
     };
 

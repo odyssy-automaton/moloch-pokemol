@@ -1,15 +1,11 @@
 import React from 'react';
-import { useWeb3SignIn } from '../../utils/Hooks';
 
-export const Web3SignIn = ({ history, setCurrentUser }) => {
-  const [, setWeb3SignIn] = useWeb3SignIn();
+export const Web3SignIn = ({ history }) => {
   return (
     <button
       onClick={async () => {
-        const set = setWeb3SignIn(true, setCurrentUser);
-        if (set && history) {
-          history.push('/proposals');
-        }
+        localStorage.setItem('loginType', 'web3');
+        history.push('/proposals');
       }}
     >
       Sign In With Web3
