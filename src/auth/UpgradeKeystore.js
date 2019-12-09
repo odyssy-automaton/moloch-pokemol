@@ -5,15 +5,13 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Auth } from 'aws-amplify';
 
 import Loading from '../components/shared/Loading';
-import Web3Service from '../utils/Web3Service';
 import config from '../config';
-import { CurrentUserContext } from '../contexts/Store';
-import { useWeb3SignIn } from '../utils/Hooks';
+import { CurrentUserContext, DaoServiceContext } from '../contexts/Store';
 
 const UpgradeKeystore = () => {
-  //component used for changing password
+  const [daoService] = useContext(DaoServiceContext);
+  // component used for changing password
   const [currentUser, setCurrentUser] = useContext(CurrentUserContext);
-  const [web3SignIn] = useWeb3SignIn();
 
   const [authError, setAuthError] = useState();
   const [authSuccess, setAuthSuccess] = useState(false);
@@ -25,7 +23,7 @@ const UpgradeKeystore = () => {
           oldPassword: '',
         }}
         validate={(values) => {
-          let errors = {};
+          const errors = {};
 
           if (!values.oldPassword) {
             errors.oldPassword = 'Required';
@@ -34,8 +32,6 @@ const UpgradeKeystore = () => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting }) => {
-          const web3Service = Web3Service.create();
-
           try {
             const user = await Auth.currentAuthenticatedUser();
 
@@ -55,7 +51,7 @@ const UpgradeKeystore = () => {
               localStorage.getItem(`@archanova:${network}:account_device`),
             );
 
-            const store = await web3Service.getKeyStore(
+            const store = await daoService.web3.eth.accounts.encrypt(
               '0x' + keyValue.data,
               values.oldPassword,
             );
@@ -65,7 +61,10 @@ const UpgradeKeystore = () => {
             });
             const attributes = await Auth.currentUserInfo();
             console.log('attributes', attributes);
-            setCurrentUser( { ...currentUser, ...{ attributes: attributes.attributes } })
+            setCurrentUser({
+              ...currentUser,
+              ...{ attributes: attributes.attributes },
+            });
             setSubmitting(false);
             setAuthSuccess(true);
           } catch (err) {

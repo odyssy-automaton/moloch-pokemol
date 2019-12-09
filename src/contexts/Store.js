@@ -81,7 +81,7 @@ const Store = ({ children }) => {
     };
 
     initCurrentUser();
-  }, []);
+  }, [currentUser]);
 
   // global polling service
   useInterval(async () => {
@@ -141,8 +141,6 @@ const Store = ({ children }) => {
         // console.log('connected state', sdk.state);
         // check acount devices on sdk
         accountDevices = await sdk.getConnectedAccountDevices();
-        // will be 'Created' or 'Delpoyed'
-        state = sdk && sdk.state.account.state;
         // console.log('state', state);
 
         // console.log('when connected?', sdk && sdk.state.account.state);

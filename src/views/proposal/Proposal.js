@@ -12,123 +12,43 @@ import Loading from '../../components/shared/Loading';
 import {
   LoaderContext,
   CurrentWalletContext,
-  CurrentUserContext,
   DaoServiceContext,
 } from '../../contexts/Store';
 
 const Proposal = (props) => {
   const id = props.match.params.id;
   const [txLoading, setTxLoading] = useContext(LoaderContext);
-  const [currentUser] = useContext(CurrentUserContext);
   const [currentWallet] = useContext(CurrentWalletContext);
   const [daoService] = useContext(DaoServiceContext);
 
-  const processProposal = (id) => {
-    const sdk = currentUser.sdk;
-    const bnZed = ethToWei(0);
-
+  const processProposal = async (id) => {
     setTxLoading(true);
-    daoService.mcDao
-      .processProposal(
-        currentUser.attributes['custom:account_address'],
-        id,
-        true,
-      )
-      .then((data) => {
-        sdk
-          .estimateAccountTransaction(daoService.daoAddress, bnZed, data)
-          .then((estimated) => {
-            if (ethToWei(currentWallet.eth).lt(estimated.totalCost)) {
-              alert(
-                `you need more gas, at least: ${daoService.web3.utils.fromWei(
-                  estimated.totalCost.toString(),
-                )}`,
-              );
-
-              return false;
-            }
-            sdk
-              .submitAccountTransaction(estimated)
-              .then((hash) => {
-                daoService.bcProcessor.setTx(
-                  hash,
-                  currentUser.attributes['custom:account_address'],
-                  `Proccess proposal. id: ${id}`,
-                  true,
-                );
-
-                setTxLoading(false);
-                props.history.push('/proposals');
-              })
-              .catch((err) => {
-                console.log('catch', err);
-                setTxLoading(false);
-              });
-          })
-          .catch(console.error);
-      });
+    try {
+      await daoService.mcDao.processProposal(id, ethToWei(currentWallet.eth));
+      props.history.push('/proposals');
+    } catch (e) {
+      console.error(`Error processing proposal: ${e.toString()}`);
+    } finally {
+      setTxLoading(false);
+    }
   };
 
   const submitVote = async (proposal, vote) => {
-    const sdk = currentUser.sdk;
-    const bnZed = ethToWei(0);
-
-    if (currentWallet.shares) {
-      setTxLoading(true);
-
-      if (web3SignedIn) {
-        console.log('Using web3 to submit vote');
-        const voteRes = await dao.submitVote(
-          currentUser.attributes['custom:account_address'],
-          proposal.id,
-          vote,
-          false,
-        );
-        console.log('voteRes: ', voteRes);
-      } else {
-        console.log('Using SDK to submit vote');
-        dao
-          .submitVote(
-            currentUser.attributes['custom:account_address'],
-            proposal.id,
-            vote,
-            true,
-          )
-          .then((data) => {
-            sdk
-              .estimateAccountTransaction(dao.contractAddr, bnZed, data)
-              .then((estimated) => {
-                if (ethToWei(currentWallet.eth).lt(estimated.totalCost)) {
-                  alert(
-                    `you need more gas, at least: ${web3Service.fromWei(
-                      estimated.totalCost.toString(),
-                    )}`,
-                  );
-
-                  return false;
-                }
-                sdk
-                  .submitAccountTransaction(estimated)
-                  .then((hash) => {
-                    bcprocessor.setTx(
-                      hash,
-                      currentUser.attributes['custom:account_address'],
-                      `Submit ${vote === 1 ? 'yes' : 'no'} vote on proposal ${
-                        proposal.id
-                      }`,
-                      true,
-                    );
-
-                    setTxLoading(false);
-                  })
-                  .catch((err) => {
-                    console.log('catch', err);
-                    setTxLoading(false);
-                  });
-              })
-              .catch(console.error);
-          });
-      }
+    if (!currentWallet.shares) {
+      alert(`You must have valid DAO shares to vote.`);
+      return;
+    }
+    setTxLoading(true);
+    try {
+      await daoService.mcDao.submitVote(
+        proposal.id,
+        vote,
+        ethToWei(currentWallet.eth),
+      );
+    } catch (e) {
+      console.error(`Error processing proposal: ${e.toString()}`);
+    } finally {
+      setTxLoading(false);
     }
   };
 

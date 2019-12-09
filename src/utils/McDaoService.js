@@ -1,12 +1,16 @@
 import DaoAbi from '../contracts/mcdao.json';
 
-export default class McDaoService {
+export class McDaoService {
   web3;
   daoContract;
+  accountAddr;
+  bcProcessor;
 
-  constructor(web3, daoAddress) {
+  constructor(web3, daoAddress, accountAddr, bcProcessor) {
     this.web3 = web3;
     this.daoContract = new web3.eth.Contract(DaoAbi, daoAddress);
+    this.accountAddr = accountAddr;
+    this.bcProcessor = bcProcessor;
   }
 
   async getAllEvents() {
@@ -88,43 +92,6 @@ export default class McDaoService {
     return addressByDelegateKey;
   }
 
-  async submitVote(from, proposalIndex, uintVote, encodedPayload) {
-    if (encodedPayload) {
-      const data = this.daoContract.methods
-        .submitVote(proposalIndex, uintVote)
-        .encodeABI();
-      return data;
-    }
-
-    return this.daoContract.methods
-      .submitVote(proposalIndex, uintVote)
-      .send({ from })
-      .catch((err) => {
-        console.log(err);
-        return { error: 'rejected transaction' };
-      });
-  }
-
-  async rageQuit(from, amount, encodedPayload) {
-    if (encodedPayload) {
-      const data = this.daoContract.methods.ragequit(amount).encodeABI();
-      return data;
-    }
-
-    const rage = this.daoContract.methods
-      .ragequit(amount)
-      .send({ from })
-      .once('transactionHash', (txHash) => {})
-      .then((resp) => {
-        return resp;
-      })
-      .catch((err) => {
-        console.log(err);
-        return { error: 'rejected transaction' };
-      });
-    return rage;
-  }
-
   async canRagequit() {
     const canRage = await this.daoContract.methods.canRagequit().call();
     return canRage;
@@ -139,49 +106,125 @@ export default class McDaoService {
     const info = await this.daoContract.methods.proposalQueue(id).call();
     return info;
   }
+}
 
-  async processProposal(from, id, encodedPayload) {
-    if (encodedPayload) {
-      const data = this.daoContract.methods.processProposal(id).encodeABI();
-      return data;
-    }
+export class SdkMcDaoService extends McDaoService {
+  sdkService;
 
-    return this.daoContract.methods
-      .processProposal(id)
-      .send({ from })
-      .catch((err) => {
-        console.log(err);
-        return { error: 'rejected transaction' };
-      });
+  constructor(web3, daoAddress, accountAddr, sdkService) {
+    super(web3, daoAddress, accountAddr);
+    this.sdkService = sdkService;
   }
 
-  async submitProposal(
-    from,
-    applicant,
-    tokenTribute,
-    sharesRequested,
-    details,
-    encodedPayload = false,
-  ) {
-    if (encodedPayload) {
-      const data = this.daoContract.methods
-        .submitProposal(applicant, tokenTribute, sharesRequested, details)
-        .encodeABI();
-      return data;
-    }
+  async submitVote(proposalIndex, uintVote) {
+    const encodedData = this.daoContract.methods
+      .submitVote(proposalIndex, uintVote)
+      .encodeABI();
+    const hash = await this.sdkSubmit(encodedData);
+    this.bcProcessor.setTx(
+      hash,
+      this.accountAddr,
+      `Submit ${
+        uintVote === 1 ? 'yes' : 'no'
+      } vote on proposal ${proposalIndex}`,
+      true,
+    );
+    return hash;
+  }
 
-    const proposal = this.daoContract.methods
+  async rageQuit(amount) {
+    const encodedData = this.daoContract.methods.ragequit(amount).encodeABI();
+    const hash = await this.sdkService.submit(encodedData);
+    this.bcProcessor.setTx(
+      hash,
+      this.accountAddr,
+      `Rage quit amount: ${amount}`,
+      true,
+    );
+    return hash;
+  }
+
+  async processProposal(id) {
+    const encodedData = this.daoContract.methods
+      .processProposal(id)
+      .encodeABI();
+    const hash = await this.sdkService.submit(encodedData);
+    this.bcProcessor.setTx(
+      hash,
+      this.accountAddr,
+      `Process proposal. id: ${id}`,
+      true,
+    );
+    return hash;
+  }
+
+  async submitProposal(applicant, tokenTribute, sharesRequested, details) {
+    const encodedData = this.daoContract.methods
       .submitProposal(applicant, tokenTribute, sharesRequested, details)
-      .send({ from })
-      .once('transactionHash', (txHash) => {})
-      .then((resp) => {
-        return resp;
-      })
-      .catch((err) => {
-        console.log(err);
-        return { error: 'rejected transaction' };
-      });
+      .encodeABI();
+    const hash = await this.sdkService.submit(encodedData);
+    this.bcProcessor.setTx(
+      hash,
+      this.accountAddr,
+      `Submit proposal (${details})`,
+      true,
+    );
+    return hash;
+  }
+}
 
-    return proposal;
+export class Web3McDaoService extends McDaoService {
+  async submitVote(proposalIndex, uintVote) {
+    const txReceipt = await this.daoContract.methods
+      .submitVote(proposalIndex, uintVote)
+      .send({ from: this.accountAddr });
+    this.bcprocessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Submit ${
+        uintVote === 1 ? 'yes' : 'no'
+      } vote on proposal ${proposalIndex}`,
+      true,
+    );
+    return txReceipt.transactionHash;
+  }
+
+  async rageQuit(amount) {
+    const txReceipt = await this.daoContract.methods
+      .ragequit(amount)
+      .send({ from: this.accountAddr });
+    this.bcProcessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Rage quit amount: ${amount}`,
+      true,
+    );
+    return txReceipt.transactionHash;
+  }
+
+  async processProposal(id) {
+    const txReceipt = await this.daoContract.methods
+      .processProposal(id)
+      .send({ from: this.accountAddr });
+    this.bcProcessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Process proposal. id: ${id}`,
+      true,
+    );
+    return txReceipt.transactionHash;
+  }
+
+  async submitProposal(applicant, tokenTribute, sharesRequested, details) {
+    const txReceipt = await this.daoContract.methods
+      .submitProposal(applicant, tokenTribute, sharesRequested, details)
+      .send({ from: this.accountAddr });
+    this.bcProcessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Submit proposal (${details})`,
+      true,
+    );
+    return txReceipt.transactionHash;
   }
 }

@@ -1,9 +1,10 @@
 import Web3 from 'web3';
-import McDaoService from './McDaoService';
+import { SdkMcDaoService, Web3McDaoService } from './McDaoService';
 import BcProcessorService from './BcProcessorService';
-import TokenService from './TokenService';
+import { Web3WethService, SdkWethService } from './TokenService';
 import config from '../config';
 import { WalletStatuses } from './WalletStatus';
+import SdkService from './SdkService';
 
 let singleton;
 
@@ -30,10 +31,14 @@ export class DaoService {
 
   static async instantiateWithInjected(accountAddr, injected) {
     const web3 = new Web3(injected);
-    const mcDao = new McDaoService(web3, config.CONTRACT_ADDRESS);
+    const mcDao = new Web3McDaoService(
+      web3,
+      config.CONTRACT_ADDRESS,
+      accountAddr,
+    );
     const bcProcessor = new BcProcessorService(web3);
     const approvedToken = await mcDao.approvedToken();
-    const token = new TokenService(web3, approvedToken);
+    const token = new Web3WethService(web3, approvedToken);
     singleton = new Web3DaoService(
       accountAddr,
       web3,
@@ -46,17 +51,23 @@ export class DaoService {
 
   static async instantiateWithSDK(accountAddr, sdk) {
     const web3 = new Web3(new Web3.providers.HttpProvider(config.INFURA_URI));
-    const mcDao = new McDaoService(web3, config.CONTRACT_ADDRESS);
+    const sdkService = new SdkService(sdk);
+    const mcDao = new SdkMcDaoService(
+      web3,
+      config.CONTRACT_ADDRESS,
+      accountAddr,
+      sdkService,
+    );
     const bcProcessor = new BcProcessorService(web3);
     const approvedToken = await mcDao.approvedToken();
-    const token = new TokenService(web3, approvedToken);
+    const token = new SdkWethService(web3, approvedToken);
     singleton = new SdkDaoService(
       accountAddr,
       web3,
       mcDao,
       bcProcessor,
       token,
-      sdk,
+      sdkService,
     );
     return singleton;
   }
@@ -87,18 +98,25 @@ export class Web3DaoService extends DaoService {
 }
 
 export class SdkDaoService extends DaoService {
-  sdk;
-  constructor(accountAddr, web3, mcDaoService, bcProcessorService, token, sdk) {
+  sdkService;
+  constructor(
+    accountAddr,
+    web3,
+    mcDaoService,
+    bcProcessorService,
+    token,
+    sdkService,
+  ) {
     super(accountAddr, web3, mcDaoService, bcProcessorService, token);
-    this.sdk = sdk;
+    this.sdkService = sdkService;
   }
 
   async getAccountWei() {
-    const ethWei = this.sdk.state.account.balance.real.toString() || 0;
+    const ethWei = this.sdkService.getAccountWei();
     return ethWei;
   }
 
   getAccountState() {
-    return this.sdk.state.account.state;
+    return this.sdkService.getAccountState();
   }
 }

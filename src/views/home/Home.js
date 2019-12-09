@@ -17,7 +17,7 @@ const Home = ({ client }) => {
   const [chartView, setChartView] = useState('bank');
   const [daoService] = useContext(DaoServiceContext);
 
-  const { guildBankAddr, approvedToken } = client.cache.readQuery({
+  const { guildBankAddr } = client.cache.readQuery({
     query: GET_METADATA,
   });
 
@@ -96,7 +96,13 @@ const Home = ({ client }) => {
     };
 
     fetchData();
-  }, [guildBankAddr, chartView, approvedToken]);
+  }, [
+    guildBankAddr,
+    chartView,
+    daoService.mcDao,
+    daoService.token,
+    daoService.web3.eth,
+  ]);
 
   return (
     <Query query={GET_METADATA} pollInterval={30000}>
