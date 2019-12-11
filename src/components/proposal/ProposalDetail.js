@@ -6,6 +6,7 @@ import { GetMetaData } from '../../utils/ProposalService';
 import {
   getProposalCountdownText,
   titleMaker,
+  descriptionMaker,
 } from '../../utils/ProposalHelper';
 import { CurrentUserContext } from '../../contexts/Store';
 import { GET_METADATA } from '../../utils/Queries';
@@ -15,8 +16,6 @@ import ValueDisplay from '../shared/ValueDisplay';
 
 import './ProposalDetail.scss';
 
-const web3Service = new Web3Service();
-
 const ProposalDetail = ({
   proposal,
   processProposal,
@@ -24,6 +23,7 @@ const ProposalDetail = ({
   canVote,
   client,
 }) => {
+  const web3Service = Web3Service.create();
   const [s3Data, setS3Data] = useState({});
   const [currentUser] = useContext(CurrentUserContext);
   const { periodDuration } = client.cache.readQuery({
@@ -35,10 +35,10 @@ const ProposalDetail = ({
       const uuid = proposal.details.split('~')[1];
 
       if (uuid) {
-        let metaData = await GetMetaData(uuid);
+        const metaData = await GetMetaData(uuid);
         setS3Data(metaData);
       } else {
-        let metaData = await GetMetaData(proposal.id);
+        const metaData = await GetMetaData(proposal.id);
         setS3Data(metaData);
       }
     };
@@ -48,6 +48,7 @@ const ProposalDetail = ({
 
   const countDown = getProposalCountdownText(proposal, periodDuration);
   const title = titleMaker(proposal);
+  const descriptionFromContract = descriptionMaker(proposal);
 
   return (
     <div className="ProposalDetail">
@@ -87,10 +88,14 @@ const ProposalDetail = ({
         <button onClick={() => processProposal(proposal.id)}>Process</button>
       )}
       <div>
-        {s3Data.description ? (
+        {s3Data.description || descriptionFromContract ? (
           <div>
             <h5>Description</h5>
-            <p>{s3Data.description}</p>
+            <p>
+              {s3Data.description
+                ? s3Data.description
+                : descriptionFromContract}
+            </p>
           </div>
         ) : null}
         {s3Data.link && ReactPlayer.canPlay(s3Data.link) ? (

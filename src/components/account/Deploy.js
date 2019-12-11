@@ -14,7 +14,7 @@ const Deploy = (props) => {
   const [currentWallet] = useContext(CurrentWalletContext);
   const [loading, setloading] = useState(false);
 
-  const web3Service = new Web3Service();
+  const web3Service = Web3Service.create();
 
   return (
     <>

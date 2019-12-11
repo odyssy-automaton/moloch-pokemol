@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Auth } from 'aws-amplify';
 
 import Loading from '../../components/shared/Loading';
+import { Web3SignIn } from '../../components/account/Web3SignIn';
 
 const SignUp = ({ history }) => {
   const [authError, setAuthError] = useState();
@@ -78,6 +79,7 @@ const SignUp = ({ history }) => {
           return (
             <Form className="Form">
               <h2 className="Pad">New Account</h2>
+              <Web3SignIn history={history} />
               <button className="RiskyBiz Short">
                 <span role="alert" aria-label="skull and crossbones">
                   ☠

@@ -15,6 +15,7 @@ const dev = {
     APP_CLIENT_ID: process.env.REACT_APP_DEV_COGNITO_APP_CLIENT_ID,
     IDENTITY_POOL_ID: process.env.REACT_APP_DEV_COGNITO_IDENTITY_POOL_ID,
   },
+  CHAIN_ID: 4,
 };
 
 const prod = {
@@ -34,6 +35,7 @@ const prod = {
     APP_CLIENT_ID: process.env.REACT_APP_COGNITO_APP_CLIENT_ID,
     IDENTITY_POOL_ID: process.env.REACT_APP_COGNITO_IDENTITY_POOL_ID,
   },
+  CHAIN_ID: 1,
 };
 
 const config = process.env.REACT_APP_STAGE === 'prod' ? prod : dev;
