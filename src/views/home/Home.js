@@ -8,6 +8,7 @@ import BottomNav from '../../components/shared/BottomNav';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import Loading from '../../components/shared/Loading';
 import ValueDisplay from '../../components/shared/ValueDisplay';
+import HomeBackground from '../../assets/moloch__meme--trans15.png';
 
 import './Home.scss';
 import { DaoServiceContext } from '../../contexts/Store';
@@ -113,7 +114,7 @@ const Home = ({ client }) => {
           <>
             <StateModals />
 
-            <div className="Home">
+            <div className="Home" style={{ backgroundImage: 'url(' + HomeBackground + ')' }}>
               <div className="Intro">
                 <h1>Moloch</h1>
                 <p>Moloch DAO</p>
@@ -131,12 +132,12 @@ const Home = ({ client }) => {
                       >
                         <stop
                           offset="0%"
-                          stopColor="rgba(189,134,254,1)"
+                          stopColor="#AA174C"
                           stopOpacity={1}
                         />
                         <stop
                           offset="100%"
-                          stopColor="rgba(189,134,254,1)"
+                          stopColor="#AA174C"
                           stopOpacity={0}
                         />
                       </linearGradient>
@@ -144,7 +145,7 @@ const Home = ({ client }) => {
                     <Area
                       type="monotone"
                       dataKey="y"
-                      stroke="rgba(203,46,206,1)"
+                      stroke="#AA174C"
                       fill="url(#grade)"
                     />
                   </AreaChart>
