@@ -1,16 +1,15 @@
 import React, { useContext } from 'react';
 
-import { CurrentUserContext } from '../../contexts/Store';
-import BcProcessorService from '../../utils/BcProcessorService';
+import { CurrentUserContext, DaoServiceContext } from '../../contexts/Store';
 import config from '../../config';
 
 const UserTransactions = () => {
-  const bcprocessor = new BcProcessorService();
+  const [daoService] = useContext(DaoServiceContext);
 
   const [currentUser] = useContext(CurrentUserContext);
 
   const renderList = () => {
-    return bcprocessor
+    return daoService.bcProcessor
       .getTxList(currentUser.attributes['custom:account_address'])
       .map((tx) => {
         return (
@@ -114,13 +113,7 @@ const UserTransactions = () => {
   };
 
   return (
-    <div className="Transactions">
-      {currentUser && (
-        <>
-          {renderList()}
-        </>
-      )}
-    </div>
+    <div className="Transactions">{currentUser && <>{renderList()}</>}</div>
   );
 };
 
