@@ -81,8 +81,8 @@ export class DaoService {
       web3,
       mcDao,
       token,
-      sdkService,
       bcProcessor,
+      sdkService,
     );
     return singleton;
   }
@@ -144,16 +144,16 @@ export class SdkDaoService extends DaoService {
     accountAddr,
     web3,
     mcDaoService,
-    bcProcessorService,
     token,
+    bcProcessorService,
     sdkService,
   ) {
-    super(accountAddr, web3, mcDaoService, bcProcessorService, token);
+    super(accountAddr, web3, mcDaoService, token, bcProcessorService);
     this.sdkService = sdkService;
   }
 
   async getAccountWei() {
-    const ethWei = this.sdkService.getAccountWei();
+    const ethWei = this.sdkService.getWeiBalance();
     return ethWei;
   }
 
