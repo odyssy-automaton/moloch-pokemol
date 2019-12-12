@@ -6,6 +6,7 @@ export const Web3SignIn = ({ history }) => {
       onClick={async () => {
         localStorage.setItem('loginType', 'web3');
         history.push('/proposals');
+        window.location.reload();
       }}
     >
       Sign In With Web3
