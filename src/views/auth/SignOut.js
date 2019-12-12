@@ -15,6 +15,7 @@ const SignOut = () => {
         await Auth.signOut();
         setCurrentUser();
         localStorage.clear();
+        window.location.reload();
       } catch (e) {
         console.log(e);
       }
