@@ -51,6 +51,7 @@ const Store = ({ children }) => {
       let user;
       let dao;
       try {
+        console.log(`Initializing user type: ${loginType || 'read-only'}`);
         switch (loginType) {
           case USER_TYPE.WEB3:
             user = await signInWithWeb3();
