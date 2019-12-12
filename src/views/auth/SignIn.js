@@ -15,6 +15,7 @@ import config from '../../config';
 import { CurrentUserContext, DaoServiceContext } from '../../contexts/Store';
 import Loading from '../../components/shared/Loading';
 import { Web3SignIn } from '../../components/account/Web3SignIn';
+import { USER_TYPE } from '../../utils/DaoService';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
 
@@ -90,24 +91,18 @@ const SignIn = ({ history }) => {
 
                   await sdk.initialize(options);
                 } catch (err) {
-                  console.log(err); // {"error":"account device not found"}
+                  console.error(err); // {"error":"account device not found"}
                 }
               }
 
               try {
                 sdk.connectAccount(user.attributes['custom:account_address']);
-
-                // currentUserInfo returns the correct attributes
-                const attributes = await Auth.currentUserInfo();
-                const realuser = {
-                  ...user,
-                  ...{ attributes: attributes.attributes },
-                };
-                setCurrentUser({ ...realuser, ...{ sdk } });
+                localStorage.setItem('loginType', USER_TYPE.SDK);
                 setSubmitting(false);
                 history.push('/proposals');
+                window.location.reload();
               } catch (err) {
-                console.log(err); // {"error":"account device not found"}
+                console.error(err); // {"error":"account device not found"}
               }
             } else {
               // first time logging in
@@ -160,15 +155,10 @@ const SignIn = ({ history }) => {
                   },
                 );
               } catch (err) {
-                console.log('storage error', err);
+                console.error('storage error', err);
               }
 
-              const attributes = await Auth.currentUserInfo();
-              const realuser = {
-                ...user,
-                ...{ attributes: attributes.attributes },
-              };
-              setCurrentUser({ ...realuser, ...{ sdk } });
+              localStorage.setItem('loginType', USER_TYPE.SDK);
 
               setSubmitting(false);
 
@@ -176,6 +166,7 @@ const SignIn = ({ history }) => {
                 pathname: '/',
                 state: { signUpModal: true },
               });
+              window.location.reload();
             }
           } catch (err) {
             setAuthError(err);
