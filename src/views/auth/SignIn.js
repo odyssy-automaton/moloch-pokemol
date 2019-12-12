@@ -12,16 +12,14 @@ import {
 
 import config from '../../config';
 
-import { CurrentUserContext } from '../../contexts/Store';
+import { CurrentUserContext, DaoServiceContext } from '../../contexts/Store';
 import Loading from '../../components/shared/Loading';
-import Web3Service from '../../utils/Web3Service';
 import { Web3SignIn } from '../../components/account/Web3SignIn';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
 
 const SignIn = ({ history }) => {
-  const web3Service = Web3Service.create();
-
+  const [daoService] = useContext(DaoServiceContext);
   const [, setCurrentUser] = useContext(CurrentUserContext);
   const [authError, setAuthError] = useState();
   const [pseudonymTouch, setPseudonymTouch] = useState(false);
@@ -81,7 +79,7 @@ const SignIn = ({ history }) => {
                 await sdk.initialize();
               } else {
                 try {
-                  const key = web3Service.decryptKeyStore(
+                  const key = daoService.web3.eth.accounts.decrypt(
                     user.attributes['custom:encrypted_ks'],
                     values.password,
                   );
@@ -127,7 +125,7 @@ const SignIn = ({ history }) => {
                 ),
               );
 
-              const store = await web3Service.getKeyStore(
+              const store = await daoService.web3.eth.accounts.encrypt(
                 '0x' + aValue.data,
                 values.password,
               );
