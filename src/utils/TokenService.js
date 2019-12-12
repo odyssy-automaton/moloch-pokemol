@@ -1,50 +1,30 @@
-import Web3Service from '../utils/Web3Service';
 import Erc20Abi from '../contracts/erc20a.json';
 
-export default class WethService {
-  contractAddr;
-  web3Service;
+export class WethService {
+  web3;
   contract;
-  abi;
+  daoAddress;
+  accountAddress;
 
-  constructor(daoToken) {
-    this.web3Service = new Web3Service();
-    this.abi = Erc20Abi;
-    this.contractAddr = daoToken;
-
-    this.initContract();
-  }
-
-  async initContract() {
-    this.contract = await this.web3Service.initContract(
-      this.abi,
-      this.contractAddr,
-    );
-    return this.contract;
+  constructor(web3, daoToken, daoAddress, accountAddress, bcProcessor) {
+    this.web3 = web3;
+    this.contract = new web3.eth.Contract(Erc20Abi, daoToken);
+    this.daoAddress = daoAddress;
+    this.accountAddress = accountAddress;
+    this.bcProcessor = bcProcessor;
   }
 
   async getSymbol() {
-    if (!this.contract) {
-      await this.initContract();
-    }
-
     const symbol = await this.contract.methods.symbol().call();
     return symbol;
   }
 
   async totalSupply() {
-    if (!this.contract) {
-      await this.initContract();
-    }
     const totalSupply = await this.contract.methods.totalSupply().call();
     return totalSupply;
   }
 
-  async balanceOf(account, atBlock = 'latest') {
-    if (!this.contract) {
-      await this.initContract();
-    }
-
+  async balanceOf(account = this.accountAddress, atBlock = 'latest') {
     const balanceOf = await this.contract.methods
       .balanceOf(account)
       .call({}, atBlock);
@@ -52,89 +32,107 @@ export default class WethService {
     return balanceOf;
   }
 
-  async allowance(accountAddr, contractAddr) {
-    if (!this.contract) {
-      await this.initContract();
-    }
+  async allowance(
+    accountAddr = this.accountAddress,
+    contractAddr = this.daoAddress,
+  ) {
     const allowance = await this.contract.methods
       .allowance(accountAddr, contractAddr)
       .call();
     return allowance;
   }
+}
 
-  async approve(from, guy, wad, encodedPayload) {
-    // guy should be moloch contract
-    if (!this.contract) {
-      await this.initContract();
-    }
-
-    if (encodedPayload) {
-      const data = this.contract.methods.approve(guy, wad).encodeABI();
-      return data;
-    }
-
-    const approve = await this.contract.methods
-      .approve(guy, wad)
-      .send({ from })
-      .once('transactionHash', (txHash) => {})
-      .then((resp) => {
-        return resp;
-      })
-      .catch((err) => {
-        console.log(err);
-        return { error: 'rejected transaction' };
-      });
-
-    return approve;
+export class SdkWethService extends WethService {
+  sdkService;
+  constructor(
+    web3,
+    daoToken,
+    daoAddress,
+    accountAddress,
+    bcProcessor,
+    sdkService,
+  ) {
+    super(web3, daoToken, daoAddress, accountAddress, bcProcessor);
+    this.sdkService = sdkService;
   }
 
-  async deposit(from, amount, encodedPayload) {
-    if (!this.contract) {
-      await this.initContract();
-    }
+  async approve(wad) {
+    const encodedData = this.contract.methods
+      .approve(this.daoAddress, wad)
+      .encodeABI();
+    const hash = await this.sdkSubmit(encodedData);
+    this.bcProcessor.setTx(
+      hash,
+      this.accountAddr,
+      `Update Token Allowance to ${wad}`,
+      true,
+    );
+    return hash;
+  }
 
-    if (encodedPayload) {
-      const data = this.contract.methods.deposit().encodeABI();
-      return data;
-    }
+  async deposit(amount) {
+    const encodedData = this.contract.methods.deposit().encodeABI();
+    const hash = await this.sdkSubmit(encodedData);
+    this.bcProcessor.setTx(
+      hash,
+      this.accountAddr,
+      `Deposit ${amount} Weth`,
+      true,
+    );
+    return hash;
+  }
 
-    let deposit = this.contract.methods
+  async transfer(dest, wad, encodedPayload) {
+    const encodedData = this.contract.methods.transfer(dest, wad).encodeABI();
+    const hash = await this.sdkSubmit(encodedData);
+    this.bcProcessor.setTx(
+      hash,
+      this.accountAddr,
+      `Transfer ${wad} Weth to ${dest}`,
+      true,
+    );
+    return hash;
+  }
+}
+
+export class Web3WethService extends WethService {
+  async approve(wad) {
+    const txReceipt = await this.contract.methods
+      .approve(this.daoAddress, wad)
+      .send({ from: this.accountAddr });
+    this.bcProcessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Update Token Allowance to ${wad}`,
+      true,
+    );
+    return txReceipt.transactionHash;
+  }
+
+  async deposit(amount) {
+    const txReceipt = await this.contract.methods
       .deposit()
-      .send({ from, value: amount })
-      .once('transactionHash', (txHash) => {})
-      .then((resp) => {
-        return resp;
-      })
-      .catch((err) => {
-        console.log(err);
-        return { error: 'rejected transaction' };
-      });
-
-    return deposit;
+      .send({ from: this.accountAddr, value: amount });
+    this.bcProcessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Deposit ${amount} Weth`,
+      true,
+    );
+    return txReceipt.transactionHash;
   }
 
-  async transfer(from, dist, wad, encodedPayload) {
-    if (!this.contract) {
-      await this.initContract();
-    }
-
-    if (encodedPayload) {
-      const data = this.contract.methods.transfer(dist, wad).encodeABI();
-      return data;
-    }
-
-    const trans = await this.contract.methods
-      .transfer(dist, wad)
-      .send({ from })
-      .once('transactionHash', (txHash) => {})
-      .then((resp) => {
-        return resp;
-      })
-      .catch((err) => {
-        console.log(err);
-        return { error: 'rejected transaction' };
-      });
-
-    return trans;
+  async transfer(dest, wad) {
+    const txReceipt = await this.contract.methods
+      .transfer(dest, wad)
+      .send({ from: this.accountAddr });
+    this.bcProcessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Transfer ${wad} Weth to ${dest}`,
+      true,
+    );
+    return txReceipt.transactionHash;
   }
 }

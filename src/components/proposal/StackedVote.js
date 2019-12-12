@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import McDaoService from '../../utils/McDaoService';
+import React, { useState, useEffect, useContext } from 'react';
 import './StackedVote.scss';
+import { DaoServiceContext } from '../../contexts/Store';
 
 const StackedVote = ({
   id,
@@ -14,6 +14,7 @@ const StackedVote = ({
   const [yesVoteShares, setYesVoteShares] = useState(0);
   const [percentageSharesYes, setPercentageSharesYes] = useState(0);
   const [percentageSharesNo, setPercentageSharesNo] = useState(0);
+  const [daoService] = useContext(DaoServiceContext);
 
   if (currentYesVote === undefined) {
     currentYesVote = 0;
@@ -24,8 +25,7 @@ const StackedVote = ({
 
   useEffect(() => {
     const currentProposal = async () => {
-      const daoService = new McDaoService();
-      const info = await daoService.proposalQueue(id);
+      const info = await daoService.mcDao.proposalQueue(id);
       const noVoteShares = parseInt(info.noVotes) + currentNoVote;
       const yesVoteShares = parseInt(info.yesVotes) + currentYesVote;
       const totalVoteShares = noVoteShares + yesVoteShares;
@@ -38,7 +38,14 @@ const StackedVote = ({
       setPercentageSharesNo(percentageSharesNo);
     };
     currentProposal();
-  }, [id, currentYesVote, currentNoVote]);
+  }, [
+    id,
+    currentYesVote,
+    currentNoVote,
+    daoService.mcDao,
+    daoService.token,
+    daoService.web3.eth,
+  ]);
 
   // const noVotes = {
   //   textAlign: 'center',

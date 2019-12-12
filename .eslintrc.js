@@ -31,6 +31,6 @@ module.exports = {
     "no-console": "warn",
     "react/prop-types": "off",
     "no-unused-vars": "error",
-    "prettier/prettier": "error"
+    "prettier/prettier": "warn"
   }
 };

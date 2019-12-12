@@ -12,20 +12,20 @@ import {
 
 import config from '../../config';
 
-import { CurrentUserContext } from '../../contexts/Store';
+import { CurrentUserContext, DaoServiceContext } from '../../contexts/Store';
 import Loading from '../../components/shared/Loading';
-import Web3Service from '../../utils/Web3Service';
+import { Web3SignIn } from '../../components/account/Web3SignIn';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
 
-const SignIn = (props) => {
-  const { history } = props;
+const SignIn = ({ history }) => {
+  const [daoService] = useContext(DaoServiceContext);
   const [, setCurrentUser] = useContext(CurrentUserContext);
   const [authError, setAuthError] = useState();
   const [pseudonymTouch, setPseudonymTouch] = useState(false);
   const [passwordTouch, setPasswordTouch] = useState(false);
 
-  let historyState = history.location.state;
+  const historyState = history.location.state;
 
   return (
     <div>
@@ -46,7 +46,7 @@ const SignIn = (props) => {
       <Formik
         initialValues={{ username: '', password: '' }}
         validate={(values) => {
-          let errors = {};
+          const errors = {};
           if (!values.username) {
             errors.username = 'Required';
           }
@@ -57,8 +57,6 @@ const SignIn = (props) => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting }) => {
-          const web3Service = new Web3Service();
-
           try {
             const user = await Auth.signIn({
               username: values.username,
@@ -81,7 +79,7 @@ const SignIn = (props) => {
                 await sdk.initialize();
               } else {
                 try {
-                  const key = web3Service.decryptKeyStore(
+                  const key = daoService.web3.eth.accounts.decrypt(
                     user.attributes['custom:encrypted_ks'],
                     values.password,
                   );
@@ -99,7 +97,7 @@ const SignIn = (props) => {
               try {
                 sdk.connectAccount(user.attributes['custom:account_address']);
 
-                //currentUserInfo returns the correct attributes
+                // currentUserInfo returns the correct attributes
                 const attributes = await Auth.currentUserInfo();
                 const realuser = {
                   ...user,
@@ -127,7 +125,7 @@ const SignIn = (props) => {
                 ),
               );
 
-              const store = await web3Service.getKeyStore(
+              const store = await daoService.web3.eth.accounts.encrypt(
                 '0x' + aValue.data,
                 values.password,
               );
@@ -194,7 +192,8 @@ const SignIn = (props) => {
           return (
             <Form className="Form">
               <h2>Sign in</h2>
-              <Link to="/sign-up">Create a new account =></Link>
+              <Web3SignIn history={history} setCurrentUser={setCurrentUser} />
+              <Link to="/sign-up">Create a new account &gt;</Link>
               {authError && (
                 <div className="Form__auth-error">
                   <p className="Danger">{authError.message}</p>

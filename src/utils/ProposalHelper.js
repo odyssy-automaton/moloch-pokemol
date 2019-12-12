@@ -165,11 +165,30 @@ export const groupByStatus = (proposals) => {
   };
 };
 
+// TODO: this solves for specific cases of mcDao and Moloch's proposal field
 export const titleMaker = (proposal) => {
-  let details = proposal.details.split('~');
+  const details = proposal.details.split('~');
   if (details[0] === 'id') {
     return details[3];
   } else {
+    try {
+      const parsed = JSON.parse(proposal.details);
+      if (parsed.title) {
+        return parsed.title;
+      }
+    } catch (e) {
+      console.log(`Couldn't parse JSON from metadata`);
+    }
     return `Genesis Proposal ${proposal.id}`;
   }
+};
+
+export const descriptionMaker = (proposal) => {
+    try {
+      const parsed = JSON.parse(proposal.details);
+      return parsed.description;
+    } catch (e) {
+      console.log(`Couldn't parse JSON from metadata`);
+    }
+    return ``;
 };
