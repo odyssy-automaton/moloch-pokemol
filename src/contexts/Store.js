@@ -11,10 +11,9 @@ export const ModalContext = createContext();
 export const RefreshContext = createContext();
 export const DaoServiceContext = createContext();
 
-const loginType = localStorage.getItem('loginType');
-
 // main store of global state
 const Store = ({ children }) => {
+  const loginType = localStorage.getItem('loginType');
   // store of aws auth information and sdk
   const [currentUser, setCurrentUser] = useState();
   // stores user wallet balances and shares
@@ -55,18 +54,20 @@ const Store = ({ children }) => {
         switch (loginType) {
           case 'web3':
             user = await signInWithWeb3();
-            dao = await DaoService.instantiateWithInjected(
+            dao = await DaoService.instantiateWithWeb3(
               user.attributes['custom:account_address'],
               window.ethereum,
             );
             break;
           case 'sdk':
-          default:
             user = await signInWithSdk();
             dao = await DaoService.instantiateWithSDK(
               user.attributes['custom:account_address'],
               user.sdk,
             );
+            break;
+          default:
+            dao = await DaoService.instantiateWithReadOnly();
             break;
         }
         setCurrentUser(user);
@@ -82,7 +83,7 @@ const Store = ({ children }) => {
     };
 
     initCurrentUser();
-  }, [currentUser]);
+  }, [currentUser, loginType, setDaoService]);
 
   // global polling service
   useInterval(async () => {
@@ -198,7 +199,7 @@ const Store = ({ children }) => {
     <LoaderContext.Provider value={[loading, setLoading]}>
       <ModalContext.Provider value={[hasOpened, setHasOpened]}>
         <RefreshContext.Provider value={[delay, setDelay]}>
-          <DaoServiceContext.Provider value={[daoService]}>
+          <DaoServiceContext.Provider value={[daoService, setDaoService]}>
             <CurrentUserContext.Provider value={[currentUser, setCurrentUser]}>
               <CurrentWalletContext.Provider
                 value={[currentWallet, setCurrentWallet]}
