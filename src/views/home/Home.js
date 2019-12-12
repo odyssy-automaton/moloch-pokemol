@@ -114,7 +114,10 @@ const Home = ({ client }) => {
           <>
             <StateModals />
 
-            <div className="Home" style={{ backgroundImage: 'url(' + HomeBackground + ')' }}>
+            <div
+              className="Home"
+              style={{ backgroundImage: 'url(' + HomeBackground + ')' }}
+            >
               <div className="Intro">
                 <h1>Moloch</h1>
                 <p>Moloch DAO</p>
@@ -130,11 +133,7 @@ const Home = ({ client }) => {
                         x2="0%"
                         y2="100%"
                       >
-                        <stop
-                          offset="0%"
-                          stopColor="#AA174C"
-                          stopOpacity={1}
-                        />
+                        <stop offset="0%" stopColor="#AA174C" stopOpacity={1} />
                         <stop
                           offset="100%"
                           stopColor="#AA174C"
