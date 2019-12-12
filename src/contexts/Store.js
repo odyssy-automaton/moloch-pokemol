@@ -25,7 +25,7 @@ const Store = ({ children }) => {
     state: null,
     devices: null,
     _txList: [],
-    addrByBelegateKey: null,
+    addrByDelegateKey: null,
     status: WalletStatuses.Unknown,
   });
 
@@ -73,7 +73,7 @@ const Store = ({ children }) => {
         setCurrentUser(user);
         localStorage.setItem('loginType', loginType);
       } catch (e) {
-        console.log(
+        console.error(
           `Could not log in with loginType ${loginType}: ${e.toString()}`,
         );
         dao = await DaoService.instantiateWithReadOnly();
@@ -99,7 +99,7 @@ const Store = ({ children }) => {
     // get account address from aws
     const acctAddr = currentUser.attributes['custom:account_address'];
     // get delegate key from contract to see if it is different
-    const addrByBelegateKey = await daoService.mcDao.memberAddressByDelegateKey(
+    const addrByDelegateKey = await daoService.mcDao.memberAddressByDelegateKey(
       acctAddr,
     );
 
@@ -115,7 +115,7 @@ const Store = ({ children }) => {
     const allowance = daoService.web3.utils.fromWei(allowanceWei);
 
     // get member shares of dao contract
-    const member = await daoService.mcDao.memberAddressByDelegateKey(acctAddr);
+    const member = await daoService.mcDao.members(addrByDelegateKey);
     // shares will be 0 if not a member, could also be 0 if rage quit
     // TODO: check membersheip a different way
     const shares = parseInt(member.shares);
@@ -189,7 +189,7 @@ const Store = ({ children }) => {
         shares,
         accountDevices,
         _txList,
-        addrByBelegateKey,
+        addrByDelegateKey,
         status,
       },
     });
