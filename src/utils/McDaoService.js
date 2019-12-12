@@ -107,7 +107,11 @@ export class McDaoService {
   }
 }
 
-export class ReadonlyMcDaoService extends McDaoService {}
+export class ReadonlyMcDaoService extends McDaoService {
+  async deployAccount() {
+    throw new Error(`This account type cannot call deployAccount`);
+  }
+}
 
 export class SdkMcDaoService extends McDaoService {
   sdkService;
@@ -174,6 +178,28 @@ export class SdkMcDaoService extends McDaoService {
     );
     return hash;
   }
+
+  async deployAccount() {
+    const data = await this.sdkService.deployAccount();
+    this.bcprocessor.setTx(
+      data,
+      this.accountAddr,
+      'Deploy contract wallet.',
+      true,
+    );
+    return data;
+  }
+
+  async withdrawEth(destinationAddress, amount) {
+    const hash = await this.sdkService.submit(destinationAddress, null);
+    this.bcprocessor.setTx(
+      hash,
+      this.accountAddr,
+      `Withdraw Eth: ${amount}`,
+      true,
+    );
+    return hash;
+  }
 }
 
 export class Web3McDaoService extends McDaoService {
@@ -236,5 +262,9 @@ export class Web3McDaoService extends McDaoService {
       true,
     );
     return txReceipt.transactionHash;
+  }
+
+  async deployAccount() {
+    throw new Error(`This account type cannot call deployAccount`);
   }
 }

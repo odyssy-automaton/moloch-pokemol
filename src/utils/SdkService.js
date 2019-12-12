@@ -16,9 +16,22 @@ export default class SdkService {
     return this.sdk.state.account.state;
   }
 
-  async submit(encodedData) {
+  async deployAccount() {
+    const estimated = await this.sdk.estimateAccountDeployment();
+    if (this.getWeiBalance().lt(estimated.totalCost)) {
+      throw new Error(
+        `you need more ETH for gas, at least: ${this.web3.utils.fromWei(
+          estimated.totalCost.toString(),
+        )}`,
+      );
+    }
+    const data = await this.sdk.deployAccount(estimated);
+    return data;
+  }
+
+  async submit(encodedData, destinationAddress = this.daoAddress) {
     const estimated = await this.sdk.estimateAccountTransaction(
-      this.daoAddress,
+      destinationAddress,
       bnZed,
       encodedData,
     );

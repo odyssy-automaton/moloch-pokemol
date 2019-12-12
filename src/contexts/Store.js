@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext } from 'react';
 import { useInterval } from '../utils/PollingUtil';
 import { WalletStatuses, currentStatus } from '../utils/WalletStatus';
 import { signInWithWeb3, signInWithSdk } from '../utils/Auth';
-import { DaoService } from '../utils/DaoService';
+import { DaoService, USER_TYPE } from '../utils/DaoService';
 
 export const CurrentUserContext = createContext();
 export const CurrentWalletContext = createContext();
@@ -52,14 +52,14 @@ const Store = ({ children }) => {
       let dao;
       try {
         switch (loginType) {
-          case 'web3':
+          case USER_TYPE.WEB3:
             user = await signInWithWeb3();
             dao = await DaoService.instantiateWithWeb3(
               user.attributes['custom:account_address'],
               window.ethereum,
             );
             break;
-          case 'sdk':
+          case USER_TYPE.SDK:
             user = await signInWithSdk();
             dao = await DaoService.instantiateWithSDK(
               user.attributes['custom:account_address'],
@@ -76,7 +76,7 @@ const Store = ({ children }) => {
         console.log(
           `Could not log in with loginType ${loginType}: ${e.toString()}`,
         );
-        dao = await DaoService.instantiateWithSDK();
+        dao = await DaoService.instantiateWithReadOnly();
       } finally {
         setDaoService(dao);
       }
