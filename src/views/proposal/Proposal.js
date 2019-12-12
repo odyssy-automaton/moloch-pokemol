@@ -16,10 +16,10 @@ import {
 } from '../../contexts/Store';
 
 const Proposal = (props) => {
+  const [daoService] = useContext(DaoServiceContext);
   const id = props.match.params.id;
   const [txLoading, setTxLoading] = useContext(LoaderContext);
   const [currentWallet] = useContext(CurrentWalletContext);
-  const [daoService] = useContext(DaoServiceContext);
 
   const processProposal = async (id) => {
     setTxLoading(true);
