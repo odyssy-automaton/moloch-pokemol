@@ -20,7 +20,7 @@ const Deploy = (props) => {
           <button
             onClick={async () => {
               try {
-                await daoService.mcDaoService.deployAccount();
+                await daoService.mcDao.deployAccount();
                 setloading(true);
               } catch (err) {
                 console.error(err);

@@ -22,7 +22,7 @@ const BcToast = () => {
   const toggleElement = () => setElementOpen(!isElementOpen);
 
   const pendingLength = () => {
-    return daoService.bcprocessor.getTxPendingList(
+    return daoService.bcProcessor.getTxPendingList(
       currentUser.attributes['custom:account_address'],
     ).length;
   };

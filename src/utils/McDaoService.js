@@ -181,7 +181,7 @@ export class SdkMcDaoService extends McDaoService {
 
   async deployAccount() {
     const data = await this.sdkService.deployAccount();
-    this.bcprocessor.setTx(
+    this.bcProcessor.setTx(
       data,
       this.accountAddr,
       'Deploy contract wallet.',
