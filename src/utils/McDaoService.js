@@ -252,6 +252,8 @@ export class Web3McDaoService extends McDaoService {
   }
 
   async submitProposal(applicant, tokenTribute, sharesRequested, details) {
+    console.log('submitting', applicant, tokenTribute, sharesRequested, details)
+
     const txReceipt = await this.daoContract.methods
       .submitProposal(applicant, tokenTribute, sharesRequested, details)
       .send({ from: this.accountAddr });
