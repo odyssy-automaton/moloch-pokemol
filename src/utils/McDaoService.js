@@ -6,11 +6,10 @@ export class McDaoService {
   accountAddr;
   bcProcessor;
 
-  constructor(web3, daoAddress, accountAddr, bcProcessor) {
+  constructor(web3, daoAddress, accountAddr) {
     this.web3 = web3;
     this.daoContract = new web3.eth.Contract(DaoAbi, daoAddress);
     this.accountAddr = accountAddr;
-    this.bcProcessor = bcProcessor;
   }
 
   async getAllEvents() {
@@ -108,12 +107,20 @@ export class McDaoService {
   }
 }
 
+export class ReadonlyMcDaoService extends McDaoService {
+  async deployAccount() {
+    throw new Error(`This account type cannot call deployAccount`);
+  }
+}
+
 export class SdkMcDaoService extends McDaoService {
   sdkService;
+  bcProcessor;
 
-  constructor(web3, daoAddress, accountAddr, sdkService) {
+  constructor(web3, daoAddress, accountAddr, bcProcessor, sdkService) {
     super(web3, daoAddress, accountAddr);
     this.sdkService = sdkService;
+    this.bcProcessor = bcProcessor;
   }
 
   async submitVote(proposalIndex, uintVote) {
@@ -171,9 +178,38 @@ export class SdkMcDaoService extends McDaoService {
     );
     return hash;
   }
+
+  async deployAccount() {
+    const data = await this.sdkService.deployAccount();
+    this.bcProcessor.setTx(
+      data,
+      this.accountAddr,
+      'Deploy contract wallet.',
+      true,
+    );
+    return data;
+  }
+
+  async withdrawEth(destinationAddress, amount) {
+    const hash = await this.sdkService.submit(destinationAddress, null);
+    this.bcprocessor.setTx(
+      hash,
+      this.accountAddr,
+      `Withdraw Eth: ${amount}`,
+      true,
+    );
+    return hash;
+  }
 }
 
 export class Web3McDaoService extends McDaoService {
+  bcProcessor;
+
+  constructor(web3, daoAddress, accountAddr, bcProcessor) {
+    super(web3, daoAddress, accountAddr);
+    this.bcProcessor = bcProcessor;
+  }
+
   async submitVote(proposalIndex, uintVote) {
     const txReceipt = await this.daoContract.methods
       .submitVote(proposalIndex, uintVote)
@@ -226,5 +262,9 @@ export class Web3McDaoService extends McDaoService {
       true,
     );
     return txReceipt.transactionHash;
+  }
+
+  async deployAccount() {
+    throw new Error(`This account type cannot call deployAccount`);
   }
 }

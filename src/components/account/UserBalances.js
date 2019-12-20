@@ -42,7 +42,6 @@ const UserBalance = (props) => {
         }
       }
     })();
-    // eslint-disable-next-line
   }, [currentUser]);
 
   const onCopy = () => {
@@ -173,8 +172,8 @@ const UserBalance = (props) => {
               )}
               {currentWallet.state === WalletStatuses.Deployed && (
                 <button
-                className="Button--Secondary"
-                onClick={() => toggleActions('daohaus')}
+                  className="Button--Secondary"
+                  onClick={() => toggleActions('daohaus')}
                 >
                   Manage on DAOHaus
                 </button>
@@ -216,14 +215,15 @@ const UserBalance = (props) => {
               <p>ETH</p>
               <p className="Data">
                 {currentWallet.eth}
-                {currentWallet.state !== WalletStatuses.Connecting && currentWallet.eth < 0.01 && (
-                  <button
-                    className="TinyButton"
-                    onClick={() => toggle('depositForm')}
-                  >
-                    <span>!</span> Low Eth
-                  </button>
-                )}
+                {currentWallet.state !== WalletStatuses.Connecting &&
+                  currentWallet.eth < 0.01 && (
+                    <button
+                      className="TinyButton"
+                      onClick={() => toggle('depositForm')}
+                    >
+                      <span>!</span> Low Eth
+                    </button>
+                  )}
               </p>
             </div>
             <div className="Item">
@@ -247,7 +247,7 @@ const UserBalance = (props) => {
       </div>
       <div className="Wallet__Footer">
         <p className="Powered">
-          {/* &nbsp;Powered by <a href="http://abridged.io">Abridged</a>*/}
+          {/* &nbsp;Powered by <a href="http://abridged.io">Abridged</a> */}
         </p>
       </div>
     </div>

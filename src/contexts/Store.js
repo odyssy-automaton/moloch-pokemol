@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext } from 'react';
 import { useInterval } from '../utils/PollingUtil';
 import { WalletStatuses, currentStatus } from '../utils/WalletStatus';
 import { signInWithWeb3, signInWithSdk } from '../utils/Auth';
-import { DaoService } from '../utils/DaoService';
+import { DaoService, USER_TYPE } from '../utils/DaoService';
 
 export const CurrentUserContext = createContext();
 export const CurrentWalletContext = createContext();
@@ -11,10 +11,9 @@ export const ModalContext = createContext();
 export const RefreshContext = createContext();
 export const DaoServiceContext = createContext();
 
-const loginType = localStorage.getItem('loginType');
-
 // main store of global state
 const Store = ({ children }) => {
+  const loginType = localStorage.getItem('loginType');
   // store of aws auth information and sdk
   const [currentUser, setCurrentUser] = useState();
   // stores user wallet balances and shares
@@ -26,7 +25,7 @@ const Store = ({ children }) => {
     state: null,
     devices: null,
     _txList: [],
-    addrByBelegateKey: null,
+    addrByDelegateKey: null,
     status: WalletStatuses.Unknown,
   });
 
@@ -52,37 +51,40 @@ const Store = ({ children }) => {
       let user;
       let dao;
       try {
+        console.log(`Initializing user type: ${loginType || 'read-only'}`);
         switch (loginType) {
-          case 'web3':
+          case USER_TYPE.WEB3:
             user = await signInWithWeb3();
-            dao = await DaoService.instantiateWithInjected(
+            dao = await DaoService.instantiateWithWeb3(
               user.attributes['custom:account_address'],
               window.ethereum,
             );
             break;
-          case 'sdk':
-          default:
+          case USER_TYPE.SDK:
             user = await signInWithSdk();
             dao = await DaoService.instantiateWithSDK(
               user.attributes['custom:account_address'],
               user.sdk,
             );
             break;
+          default:
+            dao = await DaoService.instantiateWithReadOnly();
+            break;
         }
         setCurrentUser(user);
         localStorage.setItem('loginType', loginType);
       } catch (e) {
-        console.log(
+        console.error(
           `Could not log in with loginType ${loginType}: ${e.toString()}`,
         );
-        dao = await DaoService.instantiateWithSDK();
+        dao = await DaoService.instantiateWithReadOnly();
       } finally {
         setDaoService(dao);
       }
     };
 
     initCurrentUser();
-  }, [currentUser]);
+  }, [currentUser, loginType, setDaoService]);
 
   // global polling service
   useInterval(async () => {
@@ -98,7 +100,7 @@ const Store = ({ children }) => {
     // get account address from aws
     const acctAddr = currentUser.attributes['custom:account_address'];
     // get delegate key from contract to see if it is different
-    const addrByBelegateKey = await daoService.mcDao.memberAddressByDelegateKey(
+    const addrByDelegateKey = await daoService.mcDao.memberAddressByDelegateKey(
       acctAddr,
     );
 
@@ -114,7 +116,7 @@ const Store = ({ children }) => {
     const allowance = daoService.web3.utils.fromWei(allowanceWei);
 
     // get member shares of dao contract
-    const member = await daoService.mcDao.memberAddressByDelegateKey(acctAddr);
+    const member = await daoService.mcDao.members(addrByDelegateKey);
     // shares will be 0 if not a member, could also be 0 if rage quit
     // TODO: check membersheip a different way
     const shares = parseInt(member.shares);
@@ -188,7 +190,7 @@ const Store = ({ children }) => {
         shares,
         accountDevices,
         _txList,
-        addrByBelegateKey,
+        addrByDelegateKey,
         status,
       },
     });
@@ -198,7 +200,7 @@ const Store = ({ children }) => {
     <LoaderContext.Provider value={[loading, setLoading]}>
       <ModalContext.Provider value={[hasOpened, setHasOpened]}>
         <RefreshContext.Provider value={[delay, setDelay]}>
-          <DaoServiceContext.Provider value={[daoService]}>
+          <DaoServiceContext.Provider value={[daoService, setDaoService]}>
             <CurrentUserContext.Provider value={[currentUser, setCurrentUser]}>
               <CurrentWalletContext.Provider
                 value={[currentWallet, setCurrentWallet]}

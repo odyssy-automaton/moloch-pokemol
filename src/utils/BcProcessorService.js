@@ -1,4 +1,4 @@
-export default class BcProcessorService {
+export class BcProcessorService {
   web3;
   constructor(web3) {
     this.web3 = web3;
@@ -74,5 +74,11 @@ export default class BcProcessorService {
     // needs to clear for account
     // setTxList({ txList: [] });
     return { txList: [] };
+  }
+}
+
+export class ReadOnlyBcProcessorService extends BcProcessorService {
+  getTxList() {
+    return [];
   }
 }

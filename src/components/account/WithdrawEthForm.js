@@ -1,20 +1,17 @@
 import React, { useState, useContext } from 'react';
-import { ethToWei } from '@netgum/utils'; // returns BN
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 import {
   CurrentUserContext,
   LoaderContext,
-  CurrentWalletContext,
+  DaoServiceContext,
 } from '../../contexts/Store';
-import Web3Service from '../../utils/Web3Service';
-import BcProcessorService from '../../utils/BcProcessorService';
 import Loading from '../shared/Loading';
 
 const WithdrawEthForm = () => {
+  const [daoService] = useContext(DaoServiceContext);
   const [currentUser] = useContext(CurrentUserContext);
   const [loading, setLoading] = useContext(LoaderContext);
-  const [currentWallet] = useContext(CurrentWalletContext);
   const [formSuccess, setFormSuccess] = useState(false);
 
   return (
@@ -29,7 +26,7 @@ const WithdrawEthForm = () => {
           dist: '',
         }}
         validate={(values) => {
-          let errors = {};
+          const errors = {};
           if (!values.amount) {
             errors.amount = 'Required';
           }
@@ -40,48 +37,18 @@ const WithdrawEthForm = () => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
-          const sdk = currentUser.sdk;
-          const web3Service = Web3Service.create();
-          const bcprocessor = new BcProcessorService();
-
-          const bnAmmount = ethToWei(values.amount);
+          const bnAmount = daoService.web3.utils.fromWei(values.amount);
 
           setLoading(true);
           try {
-            const estimated = await sdk.estimateAccountTransaction(
-              values.dist,
-              bnAmmount,
-              null,
-            );
-
-            if (ethToWei(currentWallet.eth).lt(estimated.totalCost)) {
-              alert(
-                `you need more gas, at least: ${web3Service.fromWei(
-                  estimated.totalCost.toString(),
-                )}`,
-              );
-              setLoading(false);
-              setSubmitting(false);
-              return false;
-            }
-
-            const hash = await sdk.submitAccountTransaction(estimated);
-
-            bcprocessor.setTx(
-              hash,
-              currentUser.attributes['custom:account_address'],
-              `Withdraw Eth: ${values.amount}`,
-              true,
-            );
+            await daoService.mcDaoService.withdrawEth(values.dist, bnAmount);
           } catch (err) {
-            console.log(err);
-            alert(`Something went wrong. please try again`);
+            console.error(err);
+            resetForm();
+            setLoading(false);
+            setSubmitting(false);
+            setFormSuccess(true);
           }
-
-          resetForm();
-          setLoading(false);
-          setSubmitting(false);
-          setFormSuccess(true);
         }}
       >
         {({ isSubmitting }) =>

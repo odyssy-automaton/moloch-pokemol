@@ -12,16 +12,15 @@ import {
 
 import config from '../../config';
 
-import { CurrentUserContext } from '../../contexts/Store';
+import { CurrentUserContext, DaoServiceContext } from '../../contexts/Store';
 import Loading from '../../components/shared/Loading';
-import Web3Service from '../../utils/Web3Service';
 import { Web3SignIn } from '../../components/account/Web3SignIn';
+import { USER_TYPE } from '../../utils/DaoService';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
 
 const SignIn = ({ history }) => {
-  const web3Service = Web3Service.create();
-
+  const [daoService] = useContext(DaoServiceContext);
   const [, setCurrentUser] = useContext(CurrentUserContext);
   const [authError, setAuthError] = useState();
   const [pseudonymTouch, setPseudonymTouch] = useState(false);
@@ -81,7 +80,7 @@ const SignIn = ({ history }) => {
                 await sdk.initialize();
               } else {
                 try {
-                  const key = web3Service.decryptKeyStore(
+                  const key = daoService.web3.eth.accounts.decrypt(
                     user.attributes['custom:encrypted_ks'],
                     values.password,
                   );
@@ -92,24 +91,18 @@ const SignIn = ({ history }) => {
 
                   await sdk.initialize(options);
                 } catch (err) {
-                  console.log(err); // {"error":"account device not found"}
+                  console.error(err); // {"error":"account device not found"}
                 }
               }
 
               try {
                 sdk.connectAccount(user.attributes['custom:account_address']);
-
-                // currentUserInfo returns the correct attributes
-                const attributes = await Auth.currentUserInfo();
-                const realuser = {
-                  ...user,
-                  ...{ attributes: attributes.attributes },
-                };
-                setCurrentUser({ ...realuser, ...{ sdk } });
+                localStorage.setItem('loginType', USER_TYPE.SDK);
                 setSubmitting(false);
                 history.push('/proposals');
+                window.location.reload();
               } catch (err) {
-                console.log(err); // {"error":"account device not found"}
+                console.error(err); // {"error":"account device not found"}
               }
             } else {
               // first time logging in
@@ -127,7 +120,7 @@ const SignIn = ({ history }) => {
                 ),
               );
 
-              const store = await web3Service.getKeyStore(
+              const store = await daoService.web3.eth.accounts.encrypt(
                 '0x' + aValue.data,
                 values.password,
               );
@@ -162,15 +155,10 @@ const SignIn = ({ history }) => {
                   },
                 );
               } catch (err) {
-                console.log('storage error', err);
+                console.error('storage error', err);
               }
 
-              const attributes = await Auth.currentUserInfo();
-              const realuser = {
-                ...user,
-                ...{ attributes: attributes.attributes },
-              };
-              setCurrentUser({ ...realuser, ...{ sdk } });
+              localStorage.setItem('loginType', USER_TYPE.SDK);
 
               setSubmitting(false);
 
@@ -178,6 +166,7 @@ const SignIn = ({ history }) => {
                 pathname: '/',
                 state: { signUpModal: true },
               });
+              window.location.reload();
             }
           } catch (err) {
             setAuthError(err);

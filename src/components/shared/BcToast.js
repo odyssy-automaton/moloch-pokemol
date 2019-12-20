@@ -1,16 +1,19 @@
 import React, { useContext, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
-import { CurrentUserContext, CurrentWalletContext } from '../../contexts/Store';
+import {
+  CurrentUserContext,
+  CurrentWalletContext,
+  DaoServiceContext,
+} from '../../contexts/Store';
 import { WalletStatuses } from '../../utils/WalletStatus';
-import BcProcessorService from '../../utils/BcProcessorService';
 import IconProcessing from './IconProcessing';
 
 import './BcToast.scss';
 import config from '../../config';
 
 const BcToast = () => {
-  const bcprocessor = new BcProcessorService();
+  const [daoService] = useContext(DaoServiceContext);
 
   const [currentUser] = useContext(CurrentUserContext);
   const [currentWallet] = useContext(CurrentWalletContext);
@@ -19,13 +22,13 @@ const BcToast = () => {
   const toggleElement = () => setElementOpen(!isElementOpen);
 
   const pendingLength = () => {
-    return bcprocessor.getTxPendingList(
+    return daoService.bcProcessor.getTxPendingList(
       currentUser.attributes['custom:account_address'],
     ).length;
   };
 
   const renderList = () => {
-    return bcprocessor
+    return daoService.bcProcessor
       .getTxList(currentUser.attributes['custom:account_address'])
       .slice(-3)
       .reverse()
@@ -87,16 +90,16 @@ const BcToast = () => {
         />
         <div className="Processor">
           {currentWallet.state === WalletStatuses.Deployed ? (
-          <button className="Processor__Button" onClick={toggleElement}>
-            {pendingLength() ? (
-              <IconProcessing />
-            ) : (
-              <div className="BcStatic">
-                <div className="BcStatic__Inner" />
-              </div>
-            )}
-          </button>
-          ):(
+            <button className="Processor__Button" onClick={toggleElement}>
+              {pendingLength() ? (
+                <IconProcessing />
+              ) : (
+                <div className="BcStatic">
+                  <div className="BcStatic__Inner" />
+                </div>
+              )}
+            </button>
+          ) : (
             <Link className="Processor__Button" to="/account">
               <div className="BcStatic">
                 <div className="BcStatic__Inner WarningIcon" />
