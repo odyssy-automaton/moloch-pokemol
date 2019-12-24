@@ -1,6 +1,6 @@
 import React, { Fragment, useContext } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Query } from 'react-apollo';
+import { useQuery } from '@apollo/react-hooks';
 
 import { ethToWei } from '@netgum/utils'; // returns BN
 
@@ -20,6 +20,10 @@ const Proposal = (props) => {
   const id = props.match.params.id;
   const [txLoading, setTxLoading] = useContext(LoaderContext);
   const [currentWallet] = useContext(CurrentWalletContext);
+
+  const { loading, error, data } = useQuery(GET_PROPOSAL_QUERY, {
+    variables: { id },
+  });
 
   const processProposal = async (id) => {
     setTxLoading(true);
@@ -52,23 +56,18 @@ const Proposal = (props) => {
     }
   };
 
+  if (loading) return <Loading />;
+  if (error) return <ErrorMessage message={error} />;
+
   return (
-    <Query query={GET_PROPOSAL_QUERY} variables={{ id }} pollInterval={2000}>
-      {({ loading, error, data }) => {
-        if (loading) return <Loading />;
-        if (error) return <ErrorMessage message={error} />;
-        return (
-          <Fragment>
-            {txLoading && <Loading />}
-            <ProposalDetail
-              submitVote={submitVote}
-              processProposal={processProposal}
-              proposal={data.proposal}
-            />
-          </Fragment>
-        );
-      }}
-    </Query>
+    <Fragment>
+      {txLoading && <Loading />}
+      <ProposalDetail
+        submitVote={submitVote}
+        processProposal={processProposal}
+        proposal={data.proposal}
+      />
+    </Fragment>
   );
 };
 

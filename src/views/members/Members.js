@@ -11,8 +11,6 @@ import StateModals from '../../components/shared/StateModals';
 const Members = () => {
   const { loading, error, data } = useQuery(GET_MEMBERS_QUERY);
 
-  console.log('data', data);
-
   if (loading) return <Loading />;
   if (error) return <ErrorMessage message={error} />;
 
