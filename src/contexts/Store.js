@@ -13,7 +13,7 @@ export const DaoServiceContext = createContext();
 
 // main store of global state
 const Store = ({ children }) => {
-  const loginType = localStorage.getItem('loginType');
+  const loginType = localStorage.getItem('loginType') || USER_TYPE.READ_ONLY;
   // store of aws auth information and sdk
   const [currentUser, setCurrentUser] = useState();
   // stores user wallet balances and shares
@@ -44,8 +44,8 @@ const Store = ({ children }) => {
   useEffect(() => {
     // runs on app load, sets up user auth and sdk if necessary
     const initCurrentUser = async () => {
-      // do nothing if user is set
-      if (currentUser) {
+      // do nothing if user is set correctly
+      if (currentUser && currentUser.type === loginType) {
         return;
       }
       let user;
@@ -67,7 +67,11 @@ const Store = ({ children }) => {
               user.sdk,
             );
             break;
+          case USER_TYPE.READ_ONLY:
           default:
+            user = {
+              type: USER_TYPE.READ_ONLY,
+            };
             dao = await DaoService.instantiateWithReadOnly();
             break;
         }
@@ -139,7 +143,7 @@ const Store = ({ children }) => {
     //     it seems the sdk loads and then it takes a bit to get the account info
     //     could i check earlier that there is no account info
     //     not with getConnectedDevices because it errors before account connected
-    if (loginType === 'sdk') {
+    if (loginType === USER_TYPE.SDK) {
       if (sdk && sdk.state.account) {
         // console.log('connected state', sdk.state);
         // check acount devices on sdk
