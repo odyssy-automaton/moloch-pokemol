@@ -64,7 +64,7 @@ export class SdkWethService extends WethService {
     const hash = await this.sdkSubmit(encodedData);
     this.bcProcessor.setTx(
       hash,
-      this.accountAddr,
+      this.accountAddress,
       `Update Token Allowance to ${wad}`,
       true,
     );
@@ -76,7 +76,7 @@ export class SdkWethService extends WethService {
     const hash = await this.sdkSubmit(encodedData);
     this.bcProcessor.setTx(
       hash,
-      this.accountAddr,
+      this.accountAddress,
       `Deposit ${amount} Weth`,
       true,
     );
@@ -88,7 +88,7 @@ export class SdkWethService extends WethService {
     const hash = await this.sdkSubmit(encodedData);
     this.bcProcessor.setTx(
       hash,
-      this.accountAddr,
+      this.accountAddress,
       `Transfer ${wad} Weth to ${dest}`,
       true,
     );
@@ -98,12 +98,13 @@ export class SdkWethService extends WethService {
 
 export class Web3WethService extends WethService {
   async approve(wad) {
+    console.log('this.accountAddress: ', this.accountAddress);
     const txReceipt = await this.contract.methods
       .approve(this.daoAddress, wad)
-      .send({ from: this.accountAddr });
+      .send({ from: this.accountAddress });
     this.bcProcessor.setTx(
       txReceipt.transactionHash,
-      this.accountAddr,
+      this.accountAddress,
       `Update Token Allowance to ${wad}`,
       true,
     );
@@ -113,10 +114,10 @@ export class Web3WethService extends WethService {
   async deposit(amount) {
     const txReceipt = await this.contract.methods
       .deposit()
-      .send({ from: this.accountAddr, value: amount });
+      .send({ from: this.accountAddress, value: amount });
     this.bcProcessor.setTx(
       txReceipt.transactionHash,
-      this.accountAddr,
+      this.accountAddress,
       `Deposit ${amount} Weth`,
       true,
     );
@@ -126,10 +127,10 @@ export class Web3WethService extends WethService {
   async transfer(dest, wad) {
     const txReceipt = await this.contract.methods
       .transfer(dest, wad)
-      .send({ from: this.accountAddr });
+      .send({ from: this.accountAddress });
     this.bcProcessor.setTx(
       txReceipt.transactionHash,
-      this.accountAddr,
+      this.accountAddress,
       `Transfer ${wad} Weth to ${dest}`,
       true,
     );

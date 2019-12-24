@@ -52,7 +52,13 @@ export class DaoService {
       bcProcessor,
     );
     const approvedToken = await mcDao.approvedToken();
-    const token = new Web3WethService(web3, approvedToken);
+    const token = new Web3WethService(
+      web3,
+      approvedToken,
+      config.CONTRACT_ADDRESS,
+      accountAddr,
+      bcProcessor,
+    );
     singleton = new Web3DaoService(
       accountAddr,
       web3,
@@ -75,7 +81,13 @@ export class DaoService {
       sdkService,
     );
     const approvedToken = await mcDao.approvedToken();
-    const token = new SdkWethService(web3, approvedToken);
+    const token = new SdkWethService(
+      web3,
+      approvedToken,
+      config.CONTRACT_ADDRESS,
+      accountAddr,
+      bcProcessor,
+    );
     singleton = new SdkDaoService(
       accountAddr,
       web3,
