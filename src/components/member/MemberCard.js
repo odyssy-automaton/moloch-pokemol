@@ -1,31 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import makeBlockie from 'ethereum-blockies-base64';
+import { getProfile } from '3box/lib/api';
 
 import Web3Service from '../../utils/Web3Service';
 import { truncateAddr } from '../../utils/Helpers';
-import { GetMetaData } from '../../utils/MemberService';
 import ValueDisplay from '../shared/ValueDisplay';
 
 import './MemberCard.scss';
 
 const MemberCard = ({ member }) => {
-  const [s3Data, setS3Data] = useState({});
   const web3Service = Web3Service.create();
+  const [memberProfile, setMemberProfile] = useState({});
 
   useEffect(() => {
-    const fetchData = async () => {
-      let metaData = await GetMetaData(member.delegateKey);
-      setS3Data(metaData);
+    const setup = async () => {
+      let profile;
+      try {
+        profile = await getProfile(member.id);
+      } catch {
+        profile = {};
+      }
+      setMemberProfile(profile);
     };
 
-    fetchData();
-  }, [member.delegateKey]);
+    setup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <Link className="MemberLink" to={{ pathname: '/member/' + member.id }}>
+    <Link
+      className="MemberLink"
+      to={{
+        pathname: '/member/' + member.id,
+      }}
+    >
       <div className="MemberCard">
-        <h3>{s3Data.username || 'unknown'}</h3>
-        <p className="Data Addr">{truncateAddr(member.id)}</p>
+        <div className="MemberCard__identity">
+          <div className="MemberCard__image">
+            {memberProfile && memberProfile.image && memberProfile.image[0] ? (
+              <div
+                className="ProfileImgCard"
+                style={{
+                  backgroundImage: `url(${'https://ipfs.infura.io/ipfs/' +
+                    memberProfile.image[0].contentUrl['/']})`,
+                }}
+              >
+                {''}
+              </div>
+            ) : (
+              <div
+                className="ProfileImgCard"
+                style={{
+                  backgroundImage: `url("${makeBlockie(member.id)}")`,
+                }}
+              >
+                {''}
+              </div>
+            )}
+          </div>
+          <div>
+            <h3>
+              {memberProfile.name || 'unknown'}{' '}
+              {memberProfile.emoji ? <span>{memberProfile.emoji} </span> : null}
+            </h3>
+            <p className="Data Addr">{truncateAddr(member.id)}</p>
+          </div>
+        </div>
         <div className="Offer">
           <div className="Shares">
             <h5>Shares</h5>

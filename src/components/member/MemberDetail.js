@@ -1,29 +1,61 @@
 import React, { useState, useEffect } from 'react';
+import makeBlockie from 'ethereum-blockies-base64';
+import { getProfile } from '3box/lib/api';
 
 import Web3Service from '../../utils/Web3Service';
-import { GetMetaData } from '../../utils/MemberService';
 import ValueDisplay from '../shared/ValueDisplay';
 
 import './MemberDetail.scss';
 
-
 const MemberDetail = ({ member }) => {
-  const [s3Data, setS3Data] = useState({});
+  const [memberProfile, setMemberProfile] = useState({});
   const web3Service = Web3Service.create();
 
   useEffect(() => {
-    const fetchData = async () => {
-      let metaData = await GetMetaData(member.delegateKey);
-      setS3Data(metaData);
+    const setup = async () => {
+      let profile;
+      try {
+        profile = await getProfile(member.id);
+      } catch {
+        profile = {};
+      }
+      setMemberProfile(profile);
     };
 
-    fetchData();
-  }, [member.delegateKey]);
+    setup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="MemberDetail">
-      <h2>{s3Data.username}</h2>
-      <p className="Data">{member.id}</p>
+      <div className="MemberCard__identity">
+        <div className="MemberCard__image">
+          {memberProfile && memberProfile.image && memberProfile.image[0] ? (
+            <div
+              className="ProfileImgCard"
+              style={{
+                backgroundImage: `url(${'https://ipfs.infura.io/ipfs/' +
+                  memberProfile.image[0].contentUrl['/']})`,
+              }}
+            >
+              {''}
+            </div>
+          ) : (
+            <div
+              className="ProfileImgCard"
+              style={{
+                backgroundImage: `url("${makeBlockie(member.id)}")`,
+              }}
+            >
+              {''}
+            </div>
+          )}
+        </div>
+        <div>
+          <h2>{memberProfile.name}</h2>
+          <p className="Data">{member.id}</p>
+        </div>
+      </div>
       <div className="Offer">
         <div className="Shares">
           <h5>Shares</h5>
