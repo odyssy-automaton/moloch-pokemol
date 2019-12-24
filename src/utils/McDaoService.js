@@ -214,7 +214,7 @@ export class Web3McDaoService extends McDaoService {
     const txReceipt = await this.daoContract.methods
       .submitVote(proposalIndex, uintVote)
       .send({ from: this.accountAddr });
-    this.bcprocessor.setTx(
+    this.bcProcessor.setTx(
       txReceipt.transactionHash,
       this.accountAddr,
       `Submit ${
