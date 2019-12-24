@@ -184,6 +184,22 @@ const UserBalance = (props) => {
                   Manage on DAOHaus
                 </button>
               )}
+              {currentUser.type === USER_TYPE.WEB3 && currentWallet.shares > 0 && (
+                <button
+                  onClick={() => toggleActions('ragequit')}
+                  className="Button--Secondary"
+                >
+                  Rage Quit
+                </button>
+              )}
+              {currentUser.type === USER_TYPE.WEB3 && currentWallet.shares > 0 && (
+                <button
+                  onClick={() => toggleActions('changeDelegateKey')}
+                  className="Button--Secondary"
+                >
+                  Change Delegate Key
+                </button>
+              )}
             </div>
           ) : null}
         </div>

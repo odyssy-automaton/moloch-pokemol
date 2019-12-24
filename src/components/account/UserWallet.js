@@ -13,6 +13,7 @@ import DepositForm from './DepositForm';
 import StateModals from '../shared/StateModals';
 
 import './UserWallet.scss';
+import RagequitForm from './RagequitForm';
 
 const UserWallet = () => {
   const [currentUser] = useContext(CurrentUserContext);
@@ -104,6 +105,17 @@ const UserWallet = () => {
             >
               Continue to DAOHaus
             </a>
+          </Modal>
+
+          <Modal isShowing={isShowing.ragequit} hide={() => toggle('ragequit')}>
+            <RagequitForm />
+          </Modal>
+
+          <Modal
+            isShowing={isShowing.changeDelegateKey}
+            hide={() => toggle('changeDelegateKey')}
+          >
+            <WithdrawForm />
           </Modal>
         </div>
       )}
