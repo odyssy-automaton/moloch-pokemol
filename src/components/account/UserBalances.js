@@ -112,7 +112,12 @@ const UserBalance = (props) => {
           <p
             className={
               'Status ' +
-              (currentWallet.state !== 'Deployed' ? 'Disconnected' : '')
+              ((currentUser.type === USER_TYPE.SDK &&
+                currentWallet.state !== 'Deployed') ||
+              (currentUser.type === USER_TYPE.WEB3 &&
+                currentWallet.state !== 'Connected')
+                ? 'Disconnected'
+                : '')
             }
           >
             {currentWallet.state || 'Connecting'}
