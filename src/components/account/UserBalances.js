@@ -15,6 +15,7 @@ import DepositFormInitial from './DepositFormInitial';
 import { withApollo } from 'react-apollo';
 import { GET_METADATA } from '../../utils/Queries';
 import UpgradeKeystore from '../../auth/UpgradeKeystore';
+import { USER_TYPE } from '../../utils/DaoService';
 
 const UserBalance = (props) => {
   const { toggle, client } = props;
@@ -197,12 +198,14 @@ const UserBalance = (props) => {
         >
           Transactions
         </button>
-        <button
-          className={headerSwitch === 'Accounts' ? 'Tab SelectedElement' : ''}
-          onClick={() => setHeaderSwitch('Accounts')}
-        >
-          Settings
-        </button>
+        {currentUser && currentUser.type === USER_TYPE.SDK && (
+          <button
+            className={headerSwitch === 'Accounts' ? 'Tab SelectedElement' : ''}
+            onClick={() => setHeaderSwitch('Accounts')}
+          >
+            Settings
+          </button>
+        )}
       </div>
       <div className="Contents">
         {headerSwitch === 'Balances' && (
