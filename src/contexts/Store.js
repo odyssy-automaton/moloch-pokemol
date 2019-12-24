@@ -69,9 +69,6 @@ const Store = ({ children }) => {
             break;
           case USER_TYPE.READ_ONLY:
           default:
-            user = {
-              type: USER_TYPE.READ_ONLY,
-            };
             dao = await DaoService.instantiateWithReadOnly();
             break;
         }
@@ -97,7 +94,7 @@ const Store = ({ children }) => {
       return;
     }
     // run on interval defined by $delay only if authenticated
-    if (!currentUser) {
+    if (!currentUser || currentUser.type === USER_TYPE.READ_ONLY) {
       return;
     }
     let accountDevices = null;
