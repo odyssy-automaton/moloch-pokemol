@@ -14,6 +14,7 @@ import StateModals from '../shared/StateModals';
 
 import './UserWallet.scss';
 import RagequitForm from './RagequitForm';
+import ChangeDelegateKeyForm from './ChangeDelegateKey';
 
 const UserWallet = () => {
   const [currentUser] = useContext(CurrentUserContext);
@@ -115,7 +116,7 @@ const UserWallet = () => {
             isShowing={isShowing.changeDelegateKey}
             hide={() => toggle('changeDelegateKey')}
           >
-            <WithdrawForm />
+            <ChangeDelegateKeyForm />
           </Modal>
         </div>
       )}

@@ -190,6 +190,10 @@ export class SdkMcDaoService extends McDaoService {
     return data;
   }
 
+  async updateDelegateKey() {
+    throw new Error('Unimplemented');
+  }
+
   async withdrawEth(destinationAddress, amount) {
     const hash = await this.sdkService.submit(destinationAddress, null);
     this.bcprocessor.setTx(
@@ -251,8 +255,27 @@ export class Web3McDaoService extends McDaoService {
     return txReceipt.transactionHash;
   }
 
+  async updateDelegateKey(newDelegateKey) {
+    const txReceipt = await this.daoContract.methods
+      .updateDelegateKey(newDelegateKey)
+      .send({ from: this.accountAddr });
+    this.bcProcessor.setTx(
+      txReceipt.transactionHash,
+      this.accountAddr,
+      `Update delegate key. newDelegateKey: ${newDelegateKey}`,
+      true,
+    );
+    return txReceipt.transactionHash;
+  }
+
   async submitProposal(applicant, tokenTribute, sharesRequested, details) {
-    console.log('submitting', applicant, tokenTribute, sharesRequested, details)
+    console.log(
+      'submitting',
+      applicant,
+      tokenTribute,
+      sharesRequested,
+      details,
+    );
 
     const txReceipt = await this.daoContract.methods
       .submitProposal(applicant, tokenTribute, sharesRequested, details)
