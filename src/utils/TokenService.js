@@ -98,7 +98,6 @@ export class SdkWethService extends WethService {
 
 export class Web3WethService extends WethService {
   async approve(wad) {
-    console.log('this.accountAddress: ', this.accountAddress);
     const txReceipt = await this.contract.methods
       .approve(this.daoAddress, wad)
       .send({ from: this.accountAddress });
