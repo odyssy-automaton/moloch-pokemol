@@ -17,7 +17,7 @@ export const GetMetaData = async (id) => {
 
 export const GET_MEMBERS_QUERY = gql`
   query {
-    members(orderBy: shares) {
+    members(orderBy: shares, orderDirection: desc) {
       id
       delegateKey
       shares
