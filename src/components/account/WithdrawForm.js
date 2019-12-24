@@ -49,7 +49,7 @@ const WithdrawForm = ({ client }) => {
               daoService.web3.utils.toWei(values.amount),
             );
           } catch (e) {
-            console.error(`Error processing proposal: ${e.toString()}`);
+            console.error(`Error withdrawing: ${e.toString()}`);
             alert(`Something went wrong. Please try again.`);
           } finally {
             resetForm();
