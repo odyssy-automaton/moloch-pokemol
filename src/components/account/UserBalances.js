@@ -1,7 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
-import { CurrentUserContext, CurrentWalletContext } from '../../contexts/Store';
+import {
+  CurrentUserContext,
+  CurrentWalletContext,
+  DaoServiceContext,
+} from '../../contexts/Store';
 import { WalletStatuses } from '../../utils/WalletStatus';
 import { truncateAddr } from '../../utils/Helpers';
 import Arrow from '../../assets/DropArrow.svg';
@@ -23,6 +27,7 @@ const UserBalance = (props) => {
     query: GET_METADATA,
   });
 
+  const [daoService] = useContext(DaoServiceContext);
   const [currentUser] = useContext(CurrentUserContext);
   const [currentWallet] = useContext(CurrentWalletContext);
   const [delay, setDelay] = useState(null);
@@ -30,10 +35,11 @@ const UserBalance = (props) => {
   const [actionsOpen, setActionsOpen] = useState(false);
   const [headerSwitch, setHeaderSwitch] = useState('Balances');
   const [keystoreExists, setKeystoreExists] = useState(true);
+  const [memberAddressLoggedIn, setMemberAddressLoggedIn] = useState(false);
 
   useEffect(() => {
     (async () => {
-      if (currentUser && currentUser.sdk) {
+      if (currentUser && currentUser.type === USER_TYPE.SDK) {
         try {
           const userAttributes = currentUser.attributes;
 
@@ -42,8 +48,14 @@ const UserBalance = (props) => {
           console.error(error);
         }
       }
+
+      const memberAddress = await daoService.mcDaoService.memberAddressByDelegateKey();
+      setMemberAddressLoggedIn(
+        currentUser &&
+          currentUser.attributes['custom:account_address'] === memberAddress,
+      );
     })();
-  }, [currentUser]);
+  }, [currentUser, daoService.mcDaoService]);
 
   const onCopy = () => {
     setDelay(2500);
@@ -196,6 +208,7 @@ const UserBalance = (props) => {
                 <button
                   onClick={() => toggleActions('changeDelegateKey')}
                   className="Button--Secondary"
+                  disabled={!memberAddressLoggedIn}
                 >
                   Change Delegate Key
                 </button>
