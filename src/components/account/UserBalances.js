@@ -49,13 +49,15 @@ const UserBalance = (props) => {
         }
       }
 
-      const memberAddress = await daoService.mcDaoService.memberAddressByDelegateKey();
+      const memberAddress = await daoService.mcDao.memberAddressByDelegateKey(
+        currentUser.attributes['custom:account_address'],
+      );
       setMemberAddressLoggedIn(
         currentUser &&
           currentUser.attributes['custom:account_address'] === memberAddress,
       );
     })();
-  }, [currentUser, daoService.mcDaoService]);
+  }, [currentUser, daoService.mcDao]);
 
   const onCopy = () => {
     setDelay(2500);
