@@ -39,6 +39,10 @@ const UserBalance = (props) => {
 
   useEffect(() => {
     (async () => {
+      if (!daoService.mcDaoService) {
+        return;
+      }
+
       if (currentUser && currentUser.type === USER_TYPE.SDK) {
         try {
           const userAttributes = currentUser.attributes;
