@@ -132,7 +132,7 @@ export class SdkMcDaoService extends McDaoService {
       hash,
       this.accountAddr,
       `Submit ${
-        uintVote === 1 ? 'yes' : 'no'
+      uintVote === 1 ? 'yes' : 'no'
       } vote on proposal ${proposalIndex}`,
       true,
     );
@@ -169,7 +169,8 @@ export class SdkMcDaoService extends McDaoService {
     const encodedData = this.daoContract.methods
       .submitProposal(applicant, tokenTribute, sharesRequested, details)
       .encodeABI();
-    const hash = await this.sdkService.submit(encodedData);
+
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
@@ -222,7 +223,7 @@ export class Web3McDaoService extends McDaoService {
       txReceipt.transactionHash,
       this.accountAddr,
       `Submit ${
-        uintVote === 1 ? 'yes' : 'no'
+      uintVote === 1 ? 'yes' : 'no'
       } vote on proposal ${proposalIndex}`,
       true,
     );

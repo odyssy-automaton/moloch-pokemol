@@ -30,6 +30,7 @@ export default class SdkService {
   }
 
   async submit(encodedData, destinationAddress = this.daoAddress, value = bnZed) {
+
     const estimated = await this.sdk.estimateAccountTransaction(
       destinationAddress,
       value,
