@@ -127,7 +127,8 @@ export class SdkMcDaoService extends McDaoService {
     const encodedData = this.daoContract.methods
       .submitVote(proposalIndex, uintVote)
       .encodeABI();
-    const hash = await this.sdkSubmit(encodedData);
+
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
@@ -141,7 +142,7 @@ export class SdkMcDaoService extends McDaoService {
 
   async rageQuit(amount) {
     const encodedData = this.daoContract.methods.ragequit(amount).encodeABI();
-    const hash = await this.sdkService.submit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
@@ -155,7 +156,7 @@ export class SdkMcDaoService extends McDaoService {
     const encodedData = this.daoContract.methods
       .processProposal(id)
       .encodeABI();
-    const hash = await this.sdkService.submit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
