@@ -58,10 +58,11 @@ export class SdkWethService extends WethService {
   }
 
   async approve(wad) {
+    console.log('this.daoAddress', this.web3.utils.isAddress(this.daoAddress));
     const encodedData = this.contract.methods
       .approve(this.daoAddress, wad)
       .encodeABI();
-    const hash = await this.sdkSubmit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.contract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddress,

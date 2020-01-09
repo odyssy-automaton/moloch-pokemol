@@ -87,6 +87,7 @@ export class DaoService {
       config.CONTRACT_ADDRESS,
       accountAddr,
       bcProcessor,
+      sdkService,
     );
     singleton = new SdkDaoService(
       accountAddr,
