@@ -12,12 +12,22 @@ import StateModals from '../../components/shared/StateModals';
 
 const Proposals = ({ match, history }) => {
   const [currentWallet] = useContext(CurrentWalletContext);
-  const { loading, error, data } = useQuery(GET_PROPOSALS_QUERY, {
+  const { loading, error, data, fetchMore } = useQuery(GET_PROPOSALS_QUERY, {
     pollInterval: 20000,
   });
 
   if (loading) return <Loading />;
   if (error) return <ErrorMessage message={error} />;
+
+  fetchMore({
+    variables: { skip: data.proposals.length },
+    updateQuery: (prev, { fetchMoreResult }) => {
+      if (!fetchMoreResult) return;
+      return Object.assign({}, prev, {
+        proposals: [...prev.proposals, ...fetchMoreResult.proposals],
+      });
+    },
+  });
 
   return (
     <Fragment>
