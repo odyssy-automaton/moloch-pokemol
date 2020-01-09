@@ -9,10 +9,20 @@ import Loading from '../../components/shared/Loading';
 import StateModals from '../../components/shared/StateModals';
 
 const Members = () => {
-  const { loading, error, data } = useQuery(GET_MEMBERS_QUERY);
+  const { loading, error, data, fetchMore } = useQuery(GET_MEMBERS_QUERY);
 
   if (loading) return <Loading />;
   if (error) return <ErrorMessage message={error} />;
+
+  fetchMore({
+    variables: { skip: data.members.length },
+    updateQuery: (prev, { fetchMoreResult }) => {
+      if (!fetchMoreResult) return;
+      return Object.assign({}, prev, {
+        members: [...prev.members, ...fetchMoreResult.members],
+      });
+    },
+  });
 
   return (
     <div className="View">
