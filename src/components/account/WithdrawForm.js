@@ -46,7 +46,7 @@ const WithdrawForm = ({ client }) => {
           try {
             await daoService.token.transfer(
               values.dist,
-              daoService.web3.utils.toWei(values.amount),
+              daoService.web3.utils.toWei("" + values.amount),
             );
           } catch (e) {
             console.error(`Error withdrawing: ${e.toString()}`);
@@ -97,8 +97,8 @@ const WithdrawForm = ({ client }) => {
               </button>
             </Form>
           ) : (
-            <h2>Token Sent</h2>
-          )
+              <h2>Token Sent</h2>
+            )
         }
       </Formik>
     </>

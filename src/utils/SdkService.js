@@ -29,10 +29,11 @@ export default class SdkService {
     return data;
   }
 
-  async submit(encodedData, destinationAddress = this.daoAddress) {
+  async submit(encodedData, destinationAddress = this.daoAddress, value = bnZed) {
+
     const estimated = await this.sdk.estimateAccountTransaction(
       destinationAddress,
-      bnZed,
+      value,
       encodedData,
     );
     if (this.getWeiBalance().lt(estimated.totalCost)) {

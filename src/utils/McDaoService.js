@@ -127,12 +127,13 @@ export class SdkMcDaoService extends McDaoService {
     const encodedData = this.daoContract.methods
       .submitVote(proposalIndex, uintVote)
       .encodeABI();
-    const hash = await this.sdkSubmit(encodedData);
+
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
       `Submit ${
-        uintVote === 1 ? 'yes' : 'no'
+      uintVote === 1 ? 'yes' : 'no'
       } vote on proposal ${proposalIndex}`,
       true,
     );
@@ -141,7 +142,7 @@ export class SdkMcDaoService extends McDaoService {
 
   async rageQuit(amount) {
     const encodedData = this.daoContract.methods.ragequit(amount).encodeABI();
-    const hash = await this.sdkService.submit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
@@ -155,7 +156,7 @@ export class SdkMcDaoService extends McDaoService {
     const encodedData = this.daoContract.methods
       .processProposal(id)
       .encodeABI();
-    const hash = await this.sdkService.submit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
@@ -169,7 +170,8 @@ export class SdkMcDaoService extends McDaoService {
     const encodedData = this.daoContract.methods
       .submitProposal(applicant, tokenTribute, sharesRequested, details)
       .encodeABI();
-    const hash = await this.sdkService.submit(encodedData);
+
+    const hash = await this.sdkService.submit(encodedData, this.daoContract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddr,
@@ -195,8 +197,8 @@ export class SdkMcDaoService extends McDaoService {
   }
 
   async withdrawEth(destinationAddress, amount) {
-    const hash = await this.sdkService.submit(destinationAddress, null);
-    this.bcprocessor.setTx(
+    const hash = await this.sdkService.submit(null, destinationAddress, amount);
+    this.bcProcessor.setTx(
       hash,
       this.accountAddr,
       `Withdraw Eth: ${amount}`,
@@ -222,7 +224,7 @@ export class Web3McDaoService extends McDaoService {
       txReceipt.transactionHash,
       this.accountAddr,
       `Submit ${
-        uintVote === 1 ? 'yes' : 'no'
+      uintVote === 1 ? 'yes' : 'no'
       } vote on proposal ${proposalIndex}`,
       true,
     );
