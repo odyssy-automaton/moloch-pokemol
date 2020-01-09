@@ -37,13 +37,17 @@ const WithdrawEthForm = () => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
-          const bnAmount = daoService.web3.utils.fromWei(values.amount);
-
+          const weiAmount = daoService.web3.utils.toWei(""+values.amount, "ether")
+          const bnAmount = daoService.web3.utils.toBN(weiAmount);
+          
           setLoading(true);
           try {
-            await daoService.mcDaoService.withdrawEth(values.dist, bnAmount);
+            await daoService.mcDao.withdrawEth(values.dist, bnAmount);
+            
           } catch (err) {
             console.error(err);
+
+          } finally {
             resetForm();
             setLoading(false);
             setSubmitting(false);

@@ -195,8 +195,8 @@ export class SdkMcDaoService extends McDaoService {
   }
 
   async withdrawEth(destinationAddress, amount) {
-    const hash = await this.sdkService.submit(destinationAddress, null);
-    this.bcprocessor.setTx(
+    const hash = await this.sdkService.submit(null, destinationAddress, amount);
+    this.bcProcessor.setTx(
       hash,
       this.accountAddr,
       `Withdraw Eth: ${amount}`,
