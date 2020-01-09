@@ -62,7 +62,7 @@ export class SdkWethService extends WethService {
     const encodedData = this.contract.methods
       .approve(this.daoAddress, wad)
       .encodeABI();
-    const hash = await this.sdkService.submit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.contract.options.address);
     this.bcProcessor.setTx(
       hash,
       this.accountAddress,
