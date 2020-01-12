@@ -9,8 +9,9 @@
     left: 0;
     top: 50%;
     transform: translate(0, -50%);
-    z-index: 1;
-    img { height: 48px; }
+    img {
+      height: 48px;
+    }
   }
   .Auth {
     position: absolute;
@@ -20,7 +21,7 @@
     border-radius: 16px;
     padding: 5px 15px;
     background-color: $app-light;
-    transition: all .15s linear;
+    transition: all 0.15s linear;
     z-index: 1;
     font-weight: 900;
     &__Button {
@@ -29,7 +30,7 @@
       padding-right: 12px;
       margin: 0;
       text-decoration: none;
-      transition: all .15s ease-in-out;
+      transition: all 0.15s ease-in-out;
       background-color: transparent;
       color: $base-font-color;
       width: 90px;
@@ -46,21 +47,21 @@
       }
       &:hover {
         color: $primary-hover;
-        svg { 
+        svg {
           fill: $primary-hover;
         }
       }
     }
-  } 
+  }
 }
 
 .Dropdown {
   position: relative;
   height: 0px;
   overflow: hidden;
-  transition: all .15s linear;
+  transition: all 0.15s linear;
   &__Open {
-    transition: all .15s linear;
+    transition: all 0.15s linear;
     height: auto;
     overflow: visible;
     z-index: 2;
@@ -69,17 +70,4 @@
       display: block;
     }
   }
-}
-.Backrop {
-  background-color: rgba(0,0,0,0);
-  transition: all .15s linear;
-}
-.Backdrop__Open {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
-  background-color: rgba(0,0,0,0.85);
 }

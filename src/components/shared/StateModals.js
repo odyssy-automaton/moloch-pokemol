@@ -14,7 +14,7 @@ import DepositForm from '../account/DepositForm';
 
 const StateModals = (props) => {
   const { location } = props;
-  
+
   const [currentUser] = useContext(CurrentUserContext);
   const [currentWallet] = useContext(CurrentWalletContext);
 
@@ -30,12 +30,12 @@ const StateModals = (props) => {
 
         switch (status) {
           case WalletStatuses.UnDeployed:
-            if(location.pathname !== '/account') {
+            if (location.pathname !== '/account') {
               openOnce('connectedUndeployed');
             }
             break;
           case WalletStatuses.LowGasForDeploy:
-            if(location.pathname !== '/account') {
+            if (location.pathname !== '/account') {
               openOnce('depositFormInitial');
             }
             break;
@@ -65,7 +65,15 @@ const StateModals = (props) => {
         isShowing={isShowing.connectedUndeployed}
         hide={() => toggle('connectedUndeployed')}
       >
-        <h3><span role="img" aria-label="party popper">🎉</span> Congrats! <span role="img" aria-label="party popper">🎉</span></h3>
+        <h3>
+          <span role="img" aria-label="party popper">
+            🎉
+          </span>{' '}
+          Congrats!{' '}
+          <span role="img" aria-label="party popper">
+            🎉
+          </span>
+        </h3>
         <h2>Your account is ready to deploy.</h2>
         <Deploy />
       </Modal>

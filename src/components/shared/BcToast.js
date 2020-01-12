@@ -11,6 +11,7 @@ import IconProcessing from './IconProcessing';
 
 import './BcToast.scss';
 import config from '../../config';
+import { USER_TYPE } from '../../utils/DaoService';
 
 const BcToast = () => {
   const [daoService] = useContext(DaoServiceContext);
@@ -89,7 +90,10 @@ const BcToast = () => {
           onClick={toggleElement}
         />
         <div className="Processor">
-          {currentWallet.state === WalletStatuses.Deployed ? (
+          {(currentUser.type === USER_TYPE.SDK &&
+            currentWallet.state === WalletStatuses.Deployed) ||
+          (currentUser.type === USER_TYPE.WEB3 &&
+            currentWallet.state === WalletStatuses.Connected) ? (
             <button className="Processor__Button" onClick={toggleElement}>
               {pendingLength() ? (
                 <IconProcessing />

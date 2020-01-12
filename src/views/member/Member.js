@@ -1,5 +1,5 @@
 import React from 'react';
-import { Query } from 'react-apollo';
+import { useQuery } from '@apollo/react-hooks';
 
 import { GET_MEMBER_QUERY } from '../../utils/MemberService';
 import MemberDetail from '../../components/member/MemberDetail';
@@ -9,20 +9,18 @@ import Loading from '../../components/shared/Loading';
 
 const Member = (props) => {
   const id = props.match.params.id;
+  const { loading, error, data } = useQuery(GET_MEMBER_QUERY, {
+    variables: { id },
+  });
+
+  if (loading) return <Loading />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <div className="View">
-      <Query query={GET_MEMBER_QUERY} variables={{ id }}>
-        {({ loading, error, data }) => {
-          if (loading) return <Loading />;
-          if (error) return <ErrorMessage message={error} />;
-          return (
-            <div className="MemberDetail">
-              <MemberDetail member={data.member} />
-            </div>
-          );
-        }}
-      </Query>
+      <div className="MemberDetail">
+        <MemberDetail member={data.member} />
+      </div>
       <BottomNav />
     </div>
   );

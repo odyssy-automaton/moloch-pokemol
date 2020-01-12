@@ -5,6 +5,7 @@ import {
   createSdk,
 } from '@archanova/sdk';
 import { Auth } from 'aws-amplify';
+import { USER_TYPE } from './DaoService';
 
 export const signInWithWeb3 = async () => {
   const [account] = await window.ethereum.enable();
@@ -57,7 +58,7 @@ export const signInWithSdk = async () => {
 
 export const createWeb3User = (accountAddress) => {
   return {
-    type: 'web3',
+    type: USER_TYPE.WEB3,
     attributes: { 'custom:account_address': accountAddress },
     username: accountAddress,
   };
@@ -67,5 +68,6 @@ export const createSdkUser = (user, attributes) => {
   return {
     ...user,
     ...{ attributes: attributes.attributes },
+    type: USER_TYPE.SDK,
   };
 };

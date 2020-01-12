@@ -20,7 +20,7 @@ const SignUp = ({ history }) => {
           passwordConfirm: '',
         }}
         validate={(values) => {
-          let errors = {};
+          const errors = {};
           const regexPasswordValidation = new RegExp(
             '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.,])\\S*$',
           );

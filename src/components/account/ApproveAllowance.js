@@ -44,15 +44,15 @@ const ApproveAllowance = () => {
             await daoService.token.approve(
               daoService.web3.utils.toWei(values.amount),
             );
+            setFormSuccess(true);
           } catch (e) {
             console.error(`Approving weth: ${e.toString()}`);
             alert(`Something went wrong. Please try again.`);
-          } finally {
-            resetForm();
-            setLoading(false);
-            setSubmitting(false);
-            setFormSuccess(true);
+            setFormSuccess(false);
           }
+          resetForm();
+          setLoading(false);
+          setSubmitting(false);
         }}
       >
         {({ isSubmitting }) =>

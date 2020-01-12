@@ -17,8 +17,8 @@ export const GetMetaData = async (id) => {
 };
 
 export const GET_PROPOSALS_QUERY = gql`
-  query {
-    proposals(orderBy: proposalIndex, orderDirection: desc) {
+  query proposals($skip: Int) {
+    proposals(orderBy: proposalIndex, orderDirection: desc, first: 100, skip: $skip) {
       id
       timestamp
       startingPeriod

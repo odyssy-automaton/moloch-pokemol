@@ -54,7 +54,7 @@ const ProposalForm = ({ history, client }) => {
               try {
                 await daoService.mcDao.submitProposal(
                   values.applicant,
-                  daoService.web3.utils.toWei(values.tokenTribute),
+                  daoService.web3.utils.toWei(values.tokenTribute.toString()),
                   values.sharesRequested + '',
                   JSON.stringify({
                     id: uuid,

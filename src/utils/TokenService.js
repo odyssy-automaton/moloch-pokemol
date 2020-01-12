@@ -61,34 +61,35 @@ export class SdkWethService extends WethService {
     const encodedData = this.contract.methods
       .approve(this.daoAddress, wad)
       .encodeABI();
-    const hash = await this.sdkSubmit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.contract.options.address);
     this.bcProcessor.setTx(
       hash,
-      this.accountAddr,
+      this.accountAddress,
       `Update Token Allowance to ${wad}`,
       true,
     );
     return hash;
   }
 
+  // weth wrap
   async deposit(amount) {
     const encodedData = this.contract.methods.deposit().encodeABI();
-    const hash = await this.sdkSubmit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.contract.options.address);
     this.bcProcessor.setTx(
       hash,
-      this.accountAddr,
+      this.accountAddress,
       `Deposit ${amount} Weth`,
       true,
     );
     return hash;
   }
 
-  async transfer(dest, wad, encodedPayload) {
+  async transfer(dest, wad) {
     const encodedData = this.contract.methods.transfer(dest, wad).encodeABI();
-    const hash = await this.sdkSubmit(encodedData);
+    const hash = await this.sdkService.submit(encodedData, this.contract.options.address);
     this.bcProcessor.setTx(
       hash,
-      this.accountAddr,
+      this.accountAddress,
       `Transfer ${wad} Weth to ${dest}`,
       true,
     );
@@ -100,10 +101,10 @@ export class Web3WethService extends WethService {
   async approve(wad) {
     const txReceipt = await this.contract.methods
       .approve(this.daoAddress, wad)
-      .send({ from: this.accountAddr });
+      .send({ from: this.accountAddress });
     this.bcProcessor.setTx(
       txReceipt.transactionHash,
-      this.accountAddr,
+      this.accountAddress,
       `Update Token Allowance to ${wad}`,
       true,
     );
@@ -113,10 +114,10 @@ export class Web3WethService extends WethService {
   async deposit(amount) {
     const txReceipt = await this.contract.methods
       .deposit()
-      .send({ from: this.accountAddr, value: amount });
+      .send({ from: this.accountAddress, value: amount });
     this.bcProcessor.setTx(
       txReceipt.transactionHash,
-      this.accountAddr,
+      this.accountAddress,
       `Deposit ${amount} Weth`,
       true,
     );
@@ -126,10 +127,10 @@ export class Web3WethService extends WethService {
   async transfer(dest, wad) {
     const txReceipt = await this.contract.methods
       .transfer(dest, wad)
-      .send({ from: this.accountAddr });
+      .send({ from: this.accountAddress });
     this.bcProcessor.setTx(
       txReceipt.transactionHash,
-      this.accountAddr,
+      this.accountAddress,
       `Transfer ${wad} Weth to ${dest}`,
       true,
     );

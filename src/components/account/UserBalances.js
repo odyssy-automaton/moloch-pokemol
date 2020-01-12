@@ -1,7 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
-import { CurrentUserContext, CurrentWalletContext } from '../../contexts/Store';
+import {
+  CurrentUserContext,
+  CurrentWalletContext,
+  DaoServiceContext,
+} from '../../contexts/Store';
 import { WalletStatuses } from '../../utils/WalletStatus';
 import { truncateAddr } from '../../utils/Helpers';
 import Arrow from '../../assets/DropArrow.svg';
@@ -15,6 +19,7 @@ import DepositFormInitial from './DepositFormInitial';
 import { withApollo } from 'react-apollo';
 import { GET_METADATA } from '../../utils/Queries';
 import UpgradeKeystore from '../../auth/UpgradeKeystore';
+import { USER_TYPE } from '../../utils/DaoService';
 
 const UserBalance = (props) => {
   const { toggle, client } = props;
@@ -22,6 +27,7 @@ const UserBalance = (props) => {
     query: GET_METADATA,
   });
 
+  const [daoService] = useContext(DaoServiceContext);
   const [currentUser] = useContext(CurrentUserContext);
   const [currentWallet] = useContext(CurrentWalletContext);
   const [delay, setDelay] = useState(null);
@@ -29,10 +35,15 @@ const UserBalance = (props) => {
   const [actionsOpen, setActionsOpen] = useState(false);
   const [headerSwitch, setHeaderSwitch] = useState('Balances');
   const [keystoreExists, setKeystoreExists] = useState(true);
+  const [memberAddressLoggedIn, setMemberAddressLoggedIn] = useState(false);
 
   useEffect(() => {
     (async () => {
-      if (currentUser && currentUser.sdk) {
+      if (!daoService.mcDaoService) {
+        return;
+      }
+
+      if (currentUser && currentUser.type === USER_TYPE.SDK) {
         try {
           const userAttributes = currentUser.attributes;
 
@@ -41,8 +52,16 @@ const UserBalance = (props) => {
           console.error(error);
         }
       }
+
+      const memberAddress = await daoService.mcDao.memberAddressByDelegateKey(
+        currentUser.attributes['custom:account_address'],
+      );
+      setMemberAddressLoggedIn(
+        currentUser &&
+          currentUser.attributes['custom:account_address'] === memberAddress,
+      );
     })();
-  }, [currentUser]);
+  }, [currentUser, daoService.mcDao]);
 
   const onCopy = () => {
     setDelay(2500);
@@ -111,7 +130,12 @@ const UserBalance = (props) => {
           <p
             className={
               'Status ' +
-              (currentWallet.state !== 'Deployed' ? 'Disconnected' : '')
+              ((currentUser.type === USER_TYPE.SDK &&
+                currentWallet.state !== 'Deployed') ||
+              (currentUser.type === USER_TYPE.WEB3 &&
+                currentWallet.state !== 'Connected')
+                ? 'Disconnected'
+                : '')
             }
           >
             {currentWallet.state || 'Connecting'}
@@ -147,38 +171,66 @@ const UserBalance = (props) => {
           </button>
 
           {actionsOpen ? (
-            <div className="ActionsDropdownContent">
-              <button
-                onClick={() => toggleActions('depositForm')}
-                className="Button--Secondary"
-              >
-                Deposit
-              </button>
-              {currentWallet.state === WalletStatuses.Deployed && (
+            <>
+              <div
+                className={
+                  actionsOpen ? 'Backdrop__Open Actions' : 'Backdrop Actions'
+                }
+                onClick={toggleActions}
+              />
+
+              <div className="ActionsDropdownContent">
                 <button
+                  onClick={() => toggleActions('depositForm')}
                   className="Button--Secondary"
-                  onClick={() => toggleActions('sendEth')}
                 >
-                  Send ETH
+                  Deposit
                 </button>
-              )}
-              {currentWallet.state === WalletStatuses.Deployed && (
-                <button
-                  className="Button--Secondary"
-                  onClick={() => toggleActions('sendToken')}
-                >
-                  Send {tokenSymbol}
-                </button>
-              )}
-              {currentWallet.state === WalletStatuses.Deployed && (
-                <button
-                  className="Button--Secondary"
-                  onClick={() => toggleActions('daohaus')}
-                >
-                  Manage on DAOHaus
-                </button>
-              )}
-            </div>
+                {currentWallet.state === WalletStatuses.Deployed && (
+                  <button
+                    className="Button--Secondary"
+                    onClick={() => toggleActions('sendEth')}
+                  >
+                    Send ETH
+                  </button>
+                )}
+                {currentWallet.state === WalletStatuses.Deployed && (
+                  <button
+                    className="Button--Secondary"
+                    onClick={() => toggleActions('sendToken')}
+                  >
+                    Send {tokenSymbol}
+                  </button>
+                )}
+                {currentWallet.state === WalletStatuses.Deployed && (
+                  <button
+                    className="Button--Secondary"
+                    onClick={() => toggleActions('daohaus')}
+                  >
+                    Manage on DAOHaus
+                  </button>
+                )}
+                {currentUser.type === USER_TYPE.WEB3 &&
+                  currentWallet.shares > 0 && (
+                    <button
+                      onClick={() => toggleActions('ragequit')}
+                      className="Button--Secondary"
+                    >
+                      Rage Quit
+                    </button>
+                  )}
+                {currentUser.type === USER_TYPE.WEB3 &&
+                  currentWallet.shares > 0 && (
+                    <button
+                      onClick={() => toggleActions('changeDelegateKey')}
+                      className="Button--Secondary"
+                      disabled={!memberAddressLoggedIn}
+                    >
+                      Change Delegate Key
+                    </button>
+                  )}
+              </div>
+            </>
           ) : null}
         </div>
       </div>
@@ -197,12 +249,14 @@ const UserBalance = (props) => {
         >
           Transactions
         </button>
-        <button
-          className={headerSwitch === 'Accounts' ? 'Tab SelectedElement' : ''}
-          onClick={() => setHeaderSwitch('Accounts')}
-        >
-          Settings
-        </button>
+        {currentUser && currentUser.type === USER_TYPE.SDK && (
+          <button
+            className={headerSwitch === 'Accounts' ? 'Tab SelectedElement' : ''}
+            onClick={() => setHeaderSwitch('Accounts')}
+          >
+            Settings
+          </button>
+        )}
       </div>
       <div className="Contents">
         {headerSwitch === 'Balances' && (
