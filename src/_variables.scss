@@ -8,19 +8,19 @@ $base-padding: 15px;
 $brand: 'japanese-ogre.png';
 
 // Color Palette
-$app-background: rgba(0,0,0,0.95);
-$app-light: lighten($app-background, 10%);
-$app-dark: darken($app-background, 10%);
-$primary: rgb(46, 206, 171);
-$secondary: rgba(47,233,167,1);
-$tertiary: rgba(239,73,123,1);
+$app-background: rgba(0, 0, 0, 0.95);
+$primary: #aa174c;
+$secondary: #aa174c;
+$tertiary: #aa174c;
 $primary-hover: darken($primary, 10%);
 $secondary-hover: darken($secondary, 10%);
 $tertiary-hover: darken($tertiary, 10%);
-$danger: rgba(239,73,95,1);
+$danger: rgba(239, 73, 95, 1);
 $danger-hover: darken($danger, 10%);
-$success: rgba(77,204,44,1);
-$bright: rgba(189,134,254,1);
+$success: rgba(77, 204, 44, 1);
+$bright: rgba(189, 134, 254, 1);
+$app-light: lighten($app-background, 10%);
+$app-dark: darken($primary, 10%);
 
 //Media Queries
 $grid: 1200px;
@@ -28,57 +28,80 @@ $tablet: 768px;
 $phone: 640px;
 
 // Other Styles
-$shadow: 0px 0px 10px rgba(0,0,0,0.1);
+$shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 
 // Animations
 
-@keyframes fadeIn { from { opacity:0; top: -50px; pointer-events: none; } to { opacity:1; top: 0px; pointer-events: all; } }
-@keyframes fadeOut { from { opacity:1; top: 0px; pointer-events: all; } to { opacity:0; top: -50px; pointer-events: none; } }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    top: -50px;
+    pointer-events: none;
+  }
+  to {
+    opacity: 1;
+    top: 0px;
+    pointer-events: all;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    top: 0px;
+    pointer-events: all;
+  }
+  to {
+    opacity: 0;
+    top: -50px;
+    pointer-events: none;
+  }
+}
 
 .FadeIn {
-    opacity:0;  /* make things invisible upon start */
-    top: 0px;
-    animation:fadeIn;
-    animation-fill-mode:forwards;
-    animation-timing-function: ease-in;
-    animation-duration: .25s;
-    animation-delay: 0s;
-    animation-iteration-count: 1;
+  opacity: 0; /* make things invisible upon start */
+  top: 0px;
+  animation: fadeIn;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in;
+  animation-duration: 0.25s;
+  animation-delay: 0s;
+  animation-iteration-count: 1;
 }
 
 .FadeOut {
-    opacity:0;  /* make things invisible upon start */
-    top: 0px;
-    animation:fadeOut;
-    animation-fill-mode:forwards;
-    animation-timing-function: ease-out;
-    animation-duration: .25s;
-    animation-delay: 0s;
-    animation-iteration-count: 1;
+  opacity: 0; /* make things invisible upon start */
+  top: 0px;
+  animation: fadeOut;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+  animation-duration: 0.25s;
+  animation-delay: 0s;
+  animation-iteration-count: 1;
 }
 
 .Flash {
-    // animation in/out settings
-    opacity:0;  /* make things invisible upon start */
-    top: 0px;
-    animation:fadeIn, fadeOut;
-    animation-fill-mode:forwards, forwards;
-    animation-timing-function: ease-in, ease-out;
-    animation-duration: .15s, .15s;
-    animation-delay: 0s, 2s;
-    animation-iteration-count: 1, 1;
-    // specific styles
-    left: 50%;
-    transform: translateX(-50%);
-    position: fixed;
-    background-color: $primary;
-    color: white;
-    width: 100%;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    p { font-weight: 900; }
-    z-index: 99;
+  // animation in/out settings
+  opacity: 0; /* make things invisible upon start */
+  top: 0px;
+  animation: fadeIn, fadeOut;
+  animation-fill-mode: forwards, forwards;
+  animation-timing-function: ease-in, ease-out;
+  animation-duration: 0.15s, 0.15s;
+  animation-delay: 0s, 2s;
+  animation-iteration-count: 1, 1;
+  // specific styles
+  left: 50%;
+  transform: translateX(-50%);
+  position: fixed;
+  background-color: $primary;
+  color: white;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  p {
+    font-weight: 900;
+  }
+  z-index: 99;
 }
-

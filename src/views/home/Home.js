@@ -118,7 +118,10 @@ const Home = () => {
       >
         <div className="Intro">
           <h1>Moloch DAO</h1>
-          {/* <p>Moloch DAO</p> */}
+          <p>
+            A community DAO focused on funding Ethereum development, in the name
+            of Moloch the God of Coordination Failure
+          </p>
         </div>
         <div className="Chart" style={{ width: '100%', height: '33vh' }}>
           <ResponsiveContainer>

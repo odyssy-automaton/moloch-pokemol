@@ -400,6 +400,31 @@ button.Tab {
   }
 }
 
+.Backdrop {
+  background-color: rgba(0, 0, 0, 0);
+  transition: all 0.15s linear;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  pointer-events: none;
+}
+.Backdrop__Open {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.85);
+  pointer-events: cursor;
+  &.Actions {
+    background-color: rgba(0, 0, 0, 0);
+  }
+}
+
 // Forms
 .Form {
   padding: $base-padding;

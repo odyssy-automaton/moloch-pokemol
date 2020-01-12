@@ -171,55 +171,66 @@ const UserBalance = (props) => {
           </button>
 
           {actionsOpen ? (
-            <div className="ActionsDropdownContent">
-              <button
-                onClick={() => toggleActions('depositForm')}
-                className="Button--Secondary"
-              >
-                Deposit
-              </button>
-              {currentWallet.state === WalletStatuses.Deployed && (
+            <>
+              <div
+                className={
+                  actionsOpen ? 'Backdrop__Open Actions' : 'Backdrop Actions'
+                }
+                onClick={toggleActions}
+              />
+
+              <div className="ActionsDropdownContent">
                 <button
-                  className="Button--Secondary"
-                  onClick={() => toggleActions('sendEth')}
-                >
-                  Send ETH
-                </button>
-              )}
-              {currentWallet.state === WalletStatuses.Deployed && (
-                <button
-                  className="Button--Secondary"
-                  onClick={() => toggleActions('sendToken')}
-                >
-                  Send {tokenSymbol}
-                </button>
-              )}
-              {currentWallet.state === WalletStatuses.Deployed && (
-                <button
-                  className="Button--Secondary"
-                  onClick={() => toggleActions('daohaus')}
-                >
-                  Manage on DAOHaus
-                </button>
-              )}
-              {currentUser.type === USER_TYPE.WEB3 && currentWallet.shares > 0 && (
-                <button
-                  onClick={() => toggleActions('ragequit')}
+                  onClick={() => toggleActions('depositForm')}
                   className="Button--Secondary"
                 >
-                  Rage Quit
+                  Deposit
                 </button>
-              )}
-              {currentUser.type === USER_TYPE.WEB3 && currentWallet.shares > 0 && (
-                <button
-                  onClick={() => toggleActions('changeDelegateKey')}
-                  className="Button--Secondary"
-                  disabled={!memberAddressLoggedIn}
-                >
-                  Change Delegate Key
-                </button>
-              )}
-            </div>
+                {currentWallet.state === WalletStatuses.Deployed && (
+                  <button
+                    className="Button--Secondary"
+                    onClick={() => toggleActions('sendEth')}
+                  >
+                    Send ETH
+                  </button>
+                )}
+                {currentWallet.state === WalletStatuses.Deployed && (
+                  <button
+                    className="Button--Secondary"
+                    onClick={() => toggleActions('sendToken')}
+                  >
+                    Send {tokenSymbol}
+                  </button>
+                )}
+                {currentWallet.state === WalletStatuses.Deployed && (
+                  <button
+                    className="Button--Secondary"
+                    onClick={() => toggleActions('daohaus')}
+                  >
+                    Manage on DAOHaus
+                  </button>
+                )}
+                {currentUser.type === USER_TYPE.WEB3 &&
+                  currentWallet.shares > 0 && (
+                    <button
+                      onClick={() => toggleActions('ragequit')}
+                      className="Button--Secondary"
+                    >
+                      Rage Quit
+                    </button>
+                  )}
+                {currentUser.type === USER_TYPE.WEB3 &&
+                  currentWallet.shares > 0 && (
+                    <button
+                      onClick={() => toggleActions('changeDelegateKey')}
+                      className="Button--Secondary"
+                      disabled={!memberAddressLoggedIn}
+                    >
+                      Change Delegate Key
+                    </button>
+                  )}
+              </div>
+            </>
           ) : null}
         </div>
       </div>
