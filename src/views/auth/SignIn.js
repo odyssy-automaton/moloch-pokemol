@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Auth, Storage } from 'aws-amplify';
+import { Auth } from 'aws-amplify';
 import shortid from 'shortid';
 
 import {
@@ -19,16 +19,16 @@ import { USER_TYPE } from '../../utils/DaoService';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
 const signinTypes = {
-  web3: "Web3",
-  password: "Password"
-}
+  web3: 'Web3',
+  password: 'Password',
+};
 const SignIn = ({ history }) => {
   const [daoService] = useContext(DaoServiceContext);
   const [, setCurrentUser] = useContext(CurrentUserContext);
   const [authError, setAuthError] = useState();
   const [pseudonymTouch, setPseudonymTouch] = useState(false);
   const [passwordTouch, setPasswordTouch] = useState(false);
-  const [signinType, setSigninType] = useState(null)
+  const [signinType, setSigninType] = useState(null);
   const historyState = history.location.state;
 
   return (
@@ -52,7 +52,9 @@ const SignIn = ({ history }) => {
       {signinType !== signinTypes.password && (
         <>
           <Web3SignIn history={history} setCurrentUser={setCurrentUser} />
-          <button onClick={() => setSigninType(signinTypes.password)}>Sign in With Password</button>
+          <button onClick={() => setSigninType(signinTypes.password)}>
+            Sign in With Password
+          </button>
         </>
       )}
       {signinType === signinTypes.password && (
@@ -87,7 +89,9 @@ const SignIn = ({ history }) => {
               if (user.attributes['custom:account_address'] !== '0x0') {
                 // if pk is in local storage then user has already connected but was timed out
                 if (
-                  localStorage.getItem(`@archanova:${network}:device:private_key`)
+                  localStorage.getItem(
+                    `@archanova:${network}:device:private_key`,
+                  )
                 ) {
                   await sdk.initialize();
                 } else {
@@ -139,36 +143,14 @@ const SignIn = ({ history }) => {
 
                 await Auth.updateUserAttributes(user, {
                   'custom:account_address': account.address,
-                  'custom:device_address': accountDevices.items[0].device.address,
+                  'custom:device_address':
+                    accountDevices.items[0].device.address,
                   'custom:ens_name': ensLabel,
                   'custom:named_devices': JSON.stringify({
                     'OG device': accountDevices.items[0].device.address,
                   }),
                   'custom:encrypted_ks': JSON.stringify(store),
                 });
-                const jsonse = JSON.stringify(
-                  {
-                    username: user.username,
-                    deviceId: accountDevices.items[0].device.address,
-                  },
-                  null,
-                  2,
-                );
-                const blob = new Blob([jsonse], {
-                  type: 'application/json',
-                });
-                try {
-                  // save user meta to S3
-                  Storage.put(
-                    `member_${account.address.toUpperCase()}.json`,
-                    blob,
-                    {
-                      contentType: 'text/json',
-                    },
-                  );
-                } catch (err) {
-                  console.error('storage error', err);
-                }
 
                 localStorage.setItem('loginType', USER_TYPE.SDK);
 
@@ -193,7 +175,6 @@ const SignIn = ({ history }) => {
             }
 
             return (
-
               <Form>
                 <Link to="/sign-up">Create a new account &gt;</Link>
                 {authError && (
@@ -238,15 +219,15 @@ const SignIn = ({ history }) => {
                     type="submit"
                     className={
                       Object.keys(errors).length < 1 &&
-                        pseudonymTouch &&
-                        passwordTouch
+                      pseudonymTouch &&
+                      passwordTouch
                         ? ''
                         : 'Disabled'
                     }
                     disabled={isSubmitting}
                   >
                     Sign In
-                </button>
+                  </button>
                   {/* Commented out until possible <Link to="/forgot-password">Forgot Password?</Link> */}
                 </div>
               </Form>

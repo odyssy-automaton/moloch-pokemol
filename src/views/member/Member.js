@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@apollo/react-hooks';
 
-import { GET_MEMBER_QUERY } from '../../utils/MemberService';
+import { GET_MEMBER_QUERY } from '../../utils/Queries';
 import MemberDetail from '../../components/member/MemberDetail';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import BottomNav from '../../components/shared/BottomNav';

@@ -5,10 +5,6 @@ const dev = {
   WETH_CONTRACT_ADDRESS: process.env.REACT_APP_DEV_WETH_CONTRACT_ADDRESS, // kovan weth address (change if on different network)
   DAI_CONTRACT_ADDRESS: process.env.REACT_APP_DEV_DAI_CONTRACT_ADDRESS, // kovan dai address (change if on different network)
   SDK_ENV: process.env.REACT_APP_DEV_SDK_ENV, // replace network for sdk if not Kovan
-  s3: {
-    REGION: process.env.REACT_APP_DEV_S3_REGION,
-    BUCKET: process.env.REACT_APP_DEV_S3_BUCKET,
-  },
   cognito: {
     REGION: process.env.REACT_APP_DEV_COGNITO_REGION,
     USER_POOL_ID: process.env.REACT_APP_DEV_COGNITO_USER_POOL_ID,
@@ -25,10 +21,6 @@ const prod = {
   WETH_CONTRACT_ADDRESS: process.env.REACT_APP_WETH_CONTRACT_ADDRESS,
   DAI_CONTRACT_ADDRESS: process.env.REACT_APP_DAI_CONTRACT_ADDRESS,
   SDK_ENV: process.env.REACT_APP_SDK_ENV,
-  s3: {
-    REGION: process.env.REACT_APP_S3_REGION,
-    BUCKET: process.env.REACT_APP_S3_BUCKET,
-  },
   cognito: {
     REGION: process.env.REACT_APP_COGNITO_REGION,
     USER_POOL_ID: process.env.REACT_APP_COGNITO_USER_POOL_ID,

@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Storage } from 'aws-amplify';
 import shortid from 'shortid';
 
 import {
@@ -60,21 +59,10 @@ const ProposalForm = ({ history, client }) => {
                     id: uuid,
                     title: values.title,
                     description: values.description,
+                    link: values.link,
                   }),
                 );
-                const jsonse = JSON.stringify(values, null, 2);
-                const blob = new Blob([jsonse], {
-                  type: 'application/json',
-                });
 
-                const result = await Storage.put(
-                  `proposal_${uuid}.json`,
-                  blob,
-                  {
-                    contentType: 'text/json',
-                  },
-                );
-                console.log(`Storage.put result: ${result}`);
                 history.push('/proposals');
               } catch (e) {
                 console.error(`Error processing proposal: ${e.toString()}`);

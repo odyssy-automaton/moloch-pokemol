@@ -184,11 +184,21 @@ export const titleMaker = (proposal) => {
 };
 
 export const descriptionMaker = (proposal) => {
-    try {
-      const parsed = JSON.parse(proposal.details);
-      return parsed.description;
-    } catch (e) {
-      console.log(`Couldn't parse JSON from metadata`);
-    }
-    return ``;
+  try {
+    const parsed = JSON.parse(proposal.details);
+    return parsed.description;
+  } catch (e) {
+    console.log(`Couldn't parse JSON from metadata`);
+  }
+  return ``;
+};
+
+export const linkMaker = (proposal) => {
+  try {
+    const parsed = JSON.parse(proposal.details);
+    return parsed.link;
+  } catch (e) {
+    console.log(`Couldn't parse JSON from metadata`);
+  }
+  return ``;
 };

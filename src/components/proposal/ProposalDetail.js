@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import ReactPlayer from 'react-player';
 import { withApollo } from 'react-apollo';
 
-import { GetMetaData } from '../../utils/ProposalService';
 import {
   getProposalCountdownText,
   titleMaker,
   descriptionMaker,
+  linkMaker,
 } from '../../utils/ProposalHelper';
 import { CurrentUserContext } from '../../contexts/Store';
 import { GET_METADATA } from '../../utils/Queries';
@@ -24,31 +24,15 @@ const ProposalDetail = ({
   client,
 }) => {
   const web3Service = Web3Service.create();
-  const [s3Data, setS3Data] = useState({});
   const [currentUser] = useContext(CurrentUserContext);
   const { periodDuration } = client.cache.readQuery({
     query: GET_METADATA,
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const uuid = proposal.details.split('~')[1];
-
-      if (uuid) {
-        const metaData = await GetMetaData(uuid);
-        setS3Data(metaData);
-      } else {
-        const metaData = await GetMetaData(JSON.parse(proposal.details).id);
-        setS3Data(metaData);
-      }
-    };
-
-    fetchData();
-  }, [proposal.details, proposal.id]);
-
   const countDown = getProposalCountdownText(proposal, periodDuration);
   const title = titleMaker(proposal);
   const descriptionFromContract = descriptionMaker(proposal);
+  const linkFromContract = linkMaker(proposal);
 
   return (
     <div className="ProposalDetail">
@@ -88,23 +72,23 @@ const ProposalDetail = ({
         <button onClick={() => processProposal(proposal.id)}>Process</button>
       )}
       <div>
-        {s3Data.description || descriptionFromContract ? (
+        {descriptionFromContract ? (
           <div>
             <h5>Description</h5>
-            <p>
-              {s3Data.description
-                ? s3Data.description
-                : descriptionFromContract}
-            </p>
+            <p>{descriptionFromContract}</p>
           </div>
         ) : null}
-        {s3Data.link && ReactPlayer.canPlay(s3Data.link) ? (
+        {linkFromContract && ReactPlayer.canPlay(linkFromContract) ? (
           <div className="Video">
-            <ReactPlayer url={s3Data.link} playing={false} loop={false} />
+            <ReactPlayer url={linkFromContract} playing={false} loop={false} />
           </div>
-        ) : s3Data.link && s3Data.link.indexOf('http') > -1 ? (
+        ) : linkFromContract && linkFromContract.indexOf('http') > -1 ? (
           <div className="Link">
-            <a href={s3Data.link} rel="noopener noreferrer" target="_blank">
+            <a
+              href={linkFromContract}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               Link
             </a>
           </div>

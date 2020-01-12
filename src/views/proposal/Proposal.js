@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/react-hooks';
 
 import { ethToWei } from '@netgum/utils'; // returns BN
 
-import { GET_PROPOSAL_QUERY } from '../../utils/ProposalService';
+import { GET_PROPOSAL_QUERY } from '../../utils/Queries';
 import ProposalDetail from '../../components/proposal/ProposalDetail';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import Loading from '../../components/shared/Loading';
@@ -24,8 +24,6 @@ const Proposal = (props) => {
   const { loading, error, data } = useQuery(GET_PROPOSAL_QUERY, {
     variables: { id },
   });
-
-  console.log('data', data);
 
   const processProposal = async (id) => {
     setTxLoading(true);
