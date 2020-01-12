@@ -29,7 +29,7 @@ const SignIn = ({ history }) => {
   const historyState = history.location.state;
 
   return (
-    <div>
+    <div className="Form">
       {historyState && historyState.msg && (
         <div className="EmailConfirmed">
           <svg
@@ -44,6 +44,10 @@ const SignIn = ({ history }) => {
           {historyState.msg}
         </div>
       )}
+
+      <h2>Sign in</h2>
+
+      <Web3SignIn history={history} setCurrentUser={setCurrentUser} />
       <Formik
         initialValues={{ username: '', password: '' }}
         validate={(values) => {
@@ -181,9 +185,8 @@ const SignIn = ({ history }) => {
           }
 
           return (
-            <Form className="Form">
-              <h2>Sign in</h2>
-              <Web3SignIn history={history} setCurrentUser={setCurrentUser} />
+
+            <Form>
               <Link to="/sign-up">Create a new account &gt;</Link>
               {authError && (
                 <div className="Form__auth-error">
@@ -227,8 +230,8 @@ const SignIn = ({ history }) => {
                   type="submit"
                   className={
                     Object.keys(errors).length < 1 &&
-                    pseudonymTouch &&
-                    passwordTouch
+                      pseudonymTouch &&
+                      passwordTouch
                       ? ''
                       : 'Disabled'
                   }
@@ -242,6 +245,7 @@ const SignIn = ({ history }) => {
           );
         }}
       </Formik>
+
     </div>
   );
 };
