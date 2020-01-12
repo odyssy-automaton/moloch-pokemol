@@ -110,22 +110,18 @@ const BcToast = () => {
               </div>
             </Link>
           )}
-          <div
-            className={isElementOpen ? 'Backdrop__Open' : 'Backdrop'}
-            onClick={toggleElement}
-          />
-          <div
-            className={
-              isElementOpen ? 'ProcessorDropdown__Open' : 'ProcessorDropdown'
-            }
-          >
-            <div className="Toast">
-              {renderList()}
-              <div className="Dropdown__Footer">
-                <Link to="/account" onClick={toggleElement}>
-                  View all transactions
-                </Link>
-              </div>
+        </div>
+        <div
+          className={
+            isElementOpen ? 'ProcessorDropdown__Open' : 'ProcessorDropdown'
+          }
+        >
+          <div className="Toast">
+            {renderList()}
+            <div className="Dropdown__Footer">
+              <Link to="/account" onClick={toggleElement}>
+                View all transactions
+              </Link>
             </div>
           </div>
         </div>
