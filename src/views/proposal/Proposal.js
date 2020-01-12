@@ -25,6 +25,8 @@ const Proposal = (props) => {
     variables: { id },
   });
 
+  console.log('data', data);
+
   const processProposal = async (id) => {
     setTxLoading(true);
     try {
