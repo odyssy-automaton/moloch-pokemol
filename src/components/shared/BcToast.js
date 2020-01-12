@@ -84,7 +84,7 @@ const BcToast = () => {
 
   return (
     currentUser && (
-      <Fragment>
+      <>
         <div
           className={isElementOpen ? 'Backdrop__Open' : 'Backdrop'}
           onClick={toggleElement}
@@ -110,7 +110,15 @@ const BcToast = () => {
               </div>
             </Link>
           )}
-          <div className={isElementOpen ? 'Dropdown__Open' : 'Dropdown'}>
+          <div
+            className={isElementOpen ? 'Backdrop__Open' : 'Backdrop'}
+            onClick={toggleElement}
+          />
+          <div
+            className={
+              isElementOpen ? 'ProcessorDropdown__Open' : 'ProcessorDropdown'
+            }
+          >
             <div className="Toast">
               {renderList()}
               <div className="Dropdown__Footer">
@@ -121,7 +129,7 @@ const BcToast = () => {
             </div>
           </div>
         </div>
-      </Fragment>
+      </>
     )
   );
 };

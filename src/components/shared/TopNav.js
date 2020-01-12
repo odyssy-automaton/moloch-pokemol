@@ -23,6 +23,10 @@ const TopNav = (props) => {
   return (
     <div className="TopNav">
       {currentUser && <BcToast />}
+      <div
+        className={isElementOpen ? 'Backdrop__Open Blank' : 'Backdrop'}
+        onClick={toggleElement}
+      />
       {pathname === '/sign-in' ? (
         <div className="Button Back">
           <Link to="/">{'<='} Back</Link>
@@ -71,7 +75,10 @@ const TopNav = (props) => {
             </Link>
             <button
               className="Dropdown__Open--Item LinkButton"
-              onClick={() => toggle('signOutMsg')}
+              onClick={() => {
+                toggleElement();
+                toggle('signOutMsg');
+              }}
             >
               {'<='} Sign out
             </button>

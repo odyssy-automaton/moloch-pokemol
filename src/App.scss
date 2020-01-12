@@ -420,7 +420,7 @@ button.Tab {
   z-index: 2;
   background-color: rgba(0, 0, 0, 0.85);
   pointer-events: cursor;
-  &.Actions {
+  &.Blank {
     background-color: rgba(0, 0, 0, 0);
   }
 }
@@ -469,7 +469,7 @@ textarea {
     top: 17px;
     color: lighten($primary, 10%);
     background-color: transparent;
-    z-index: 10;
+    z-index: 7;
     transition: transform 150ms ease-out, font-size 150ms ease-out;
   }
   &.HasValue {
