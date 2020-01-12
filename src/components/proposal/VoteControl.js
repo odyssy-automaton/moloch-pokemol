@@ -34,19 +34,28 @@ const VoteControl = ({ submitVote, proposal }) => {
 
   const usersVote = (votes) => {
     // get current users vote, no or yes
+
     return (
       currentUser &&
-      votes.filter(
-        (vote) =>
-          vote.memberAddress.toUpperCase() ===
-          currentUser.attributes['custom:account_address'].toUpperCase(),
-      )
+      currentWallet &&
+      currentWallet.addrByDelegateKey &&
+      votes.filter((vote) => {
+        return (
+          vote.memberAddress &&
+          vote.memberAddress.toLowerCase() ===
+          currentWallet.addrByDelegateKey.toLowerCase()
+        );
+      })
     );
+
   };
+
 
   const votedYes = (proposal) => {
     // used for className 
+    
     return (currentUser &&
+      usersVote(proposal.votes) &&
       usersVote(proposal.votes)[0] &&
       usersVote(proposal.votes)[0].uintVote === 1) ||
       currentYesVote
@@ -56,7 +65,9 @@ const VoteControl = ({ submitVote, proposal }) => {
 
   const votedNo = (proposal) => {
     // used for className 
+
     return (currentUser &&
+      usersVote(proposal.votes) &&
       usersVote(proposal.votes)[0] &&
       usersVote(proposal.votes)[0].uintVote !== 1) ||
       currentNoVote
