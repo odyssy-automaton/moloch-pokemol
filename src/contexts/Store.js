@@ -89,12 +89,15 @@ const Store = ({ children }) => {
 
   // global polling service
   useInterval(async () => {
+    
     if (!daoService) {
       console.log(`DaoService not initialized yet`);
       return;
     }
+
     // run on interval defined by $delay only if authenticated
     if (!currentUser || currentUser.type === USER_TYPE.READ_ONLY) {
+      // early return
       return;
     }
     let accountDevices = null;
@@ -104,6 +107,7 @@ const Store = ({ children }) => {
     const addrByDelegateKey = await daoService.mcDao.memberAddressByDelegateKey(
       acctAddr,
     );
+    
 
     // get weth balance and allowance of contract
     // const wethWei = await tokenService.balanceOf(acctAddr);
@@ -130,7 +134,7 @@ const Store = ({ children }) => {
     let eth = 0;
     let state = WalletStatuses.Unknown;
 
-    setLoading(true);
+    // setLoading(true);
     eth = await daoService.getAccountEth();
     state = daoService.getAccountState();
     setLoading(false);
