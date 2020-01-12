@@ -84,3 +84,44 @@ export const GET_PROPOSAL_QUERY = gql`
     }
   }
 `;
+
+export const GET_MEMBERS_QUERY = gql`
+  query members($skip: Int) {
+    members(orderBy: shares, orderDirection: desc, first: 100, skip: $skip) {
+      id
+      delegateKey
+      shares
+      isActive
+      tokenTribute
+      didRagequit
+    }
+  }
+`;
+
+export const GET_MEMBER_QUERY = gql`
+  query member($id: String!) {
+    member(id: $id) {
+      id
+      delegateKey
+      shares
+      isActive
+      tokenTribute
+      didRagequit
+      votes {
+        proposal {
+          proposalIndex
+          yesVotes
+          noVotes
+        }
+      }
+      submissions {
+        proposalIndex
+        yesVotes
+        noVotes
+        processed
+        didPass
+        aborted
+      }
+    }
+  }
+`;
