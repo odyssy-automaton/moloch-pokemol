@@ -38,7 +38,7 @@ const ProposalDetail = ({
         const metaData = await GetMetaData(uuid);
         setS3Data(metaData);
       } else {
-        const metaData = await GetMetaData(proposal.id);
+        const metaData = await GetMetaData(JSON.parse(proposal.details).id);
         setS3Data(metaData);
       }
     };
