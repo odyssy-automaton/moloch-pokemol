@@ -2,7 +2,7 @@ import React, { useContext, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/react-hooks';
 
-import { GET_PROPOSALS_QUERY } from '../../utils/ProposalService';
+import { GET_PROPOSALS_QUERY } from '../../utils/Queries';
 import ProposalFilter from '../../components/proposal/ProposalFilter';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import BottomNav from '../../components/shared/BottomNav';
