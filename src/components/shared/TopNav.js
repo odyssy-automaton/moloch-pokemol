@@ -22,11 +22,11 @@ const TopNav = (props) => {
 
   return (
     <div className="TopNav">
-      {currentUser && <BcToast />}
       <div
-        className={isElementOpen ? 'Backdrop__Open Blank' : 'Backdrop'}
+        className={isElementOpen ? 'Backdrop__Open Blank' : 'Backdrop Blank'}
         onClick={toggleElement}
       />
+      {currentUser && <BcToast />}
       {pathname === '/sign-in' ? (
         <div className="Button Back">
           <Link to="/">{'<='} Back</Link>

@@ -174,7 +174,7 @@ const UserBalance = (props) => {
             <>
               <div
                 className={
-                  actionsOpen ? 'Backdrop__Open Blank' : 'Backdrop Actions'
+                  actionsOpen ? 'Backdrop__Open Blank' : 'Backdrop Blank'
                 }
                 onClick={toggleActions}
               />

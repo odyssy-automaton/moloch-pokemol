@@ -121,7 +121,11 @@ const ProposalForm = ({ history, client }) => {
                 </ErrorMessage>
                 <Field name="tokenTribute">
                   {({ field, form }) => (
-                    <div className={field.value ? 'Field HasValue' : 'Field '}>
+                    <div
+                      className={
+                        field.value !== '' ? 'Field HasValue' : 'Field '
+                      }
+                    >
                       <label>Token Tribute</label>
                       <input type="number" {...field} />
                     </div>
@@ -133,7 +137,11 @@ const ProposalForm = ({ history, client }) => {
 
                 <Field name="sharesRequested">
                   {({ field, form }) => (
-                    <div className={field.value ? 'Field HasValue' : 'Field '}>
+                    <div
+                      className={
+                        field.value !== '' ? 'Field HasValue' : 'Field '
+                      }
+                    >
                       <label>Shares Requested</label>
                       <input type="number" {...field} />
                     </div>
