@@ -18,18 +18,21 @@ import { Web3SignIn } from '../../components/account/Web3SignIn';
 import { USER_TYPE } from '../../utils/DaoService';
 
 const sdkEnv = getSdkEnvironment(SdkEnvironmentNames[`${config.SDK_ENV}`]); // kovan env by default
-
+const signinTypes = {
+  web3: 'Web3',
+  password: 'Password',
+};
 const SignIn = ({ history }) => {
   const [daoService] = useContext(DaoServiceContext);
   const [, setCurrentUser] = useContext(CurrentUserContext);
   const [authError, setAuthError] = useState();
   const [pseudonymTouch, setPseudonymTouch] = useState(false);
   const [passwordTouch, setPasswordTouch] = useState(false);
-
+  const [signinType, setSigninType] = useState(null);
   const historyState = history.location.state;
 
   return (
-    <div>
+    <div className="Form">
       {historyState && historyState.msg && (
         <div className="EmailConfirmed">
           <svg
@@ -44,181 +47,194 @@ const SignIn = ({ history }) => {
           {historyState.msg}
         </div>
       )}
-      <Formik
-        initialValues={{ username: '', password: '' }}
-        validate={(values) => {
-          const errors = {};
-          if (!values.username) {
-            errors.username = 'Required';
-          }
-          if (!values.username) {
-            errors.password = 'Required';
-          }
 
-          return errors;
-        }}
-        onSubmit={async (values, { setSubmitting }) => {
-          try {
-            const user = await Auth.signIn({
-              username: values.username,
-              password: values.password,
-            });
+      <h2>Sign in</h2>
+      {signinType !== signinTypes.password && (
+        <>
+          <Web3SignIn history={history} setCurrentUser={setCurrentUser} />
+          <button onClick={() => setSigninType(signinTypes.password)}>
+            Sign in With Password
+          </button>
+        </>
+      )}
+      {signinType === signinTypes.password && (
+        <Formik
+          initialValues={{ username: '', password: '' }}
+          validate={(values) => {
+            const errors = {};
+            if (!values.username) {
+              errors.username = 'Required';
+            }
+            if (!values.username) {
+              errors.password = 'Required';
+            }
 
-            const sdk = new createSdk(
-              sdkEnv.setConfig('storageAdapter', localStorage),
-            );
-            const network = config.SDK_ENV.toLowerCase();
+            return errors;
+          }}
+          onSubmit={async (values, { setSubmitting }) => {
+            try {
+              const user = await Auth.signIn({
+                username: values.username,
+                password: values.password,
+              });
 
-            // account address is set to 0x0 on signup
-            // update this value after sdk is initialized and created
-            // if account address exists on aws auth connect account to sdk
-            if (user.attributes['custom:account_address'] !== '0x0') {
-              // if pk is in local storage then user has already connected but was timed out
-              if (
-                localStorage.getItem(`@archanova:${network}:device:private_key`)
-              ) {
-                await sdk.initialize();
-              } else {
+              const sdk = new createSdk(
+                sdkEnv.setConfig('storageAdapter', localStorage),
+              );
+              const network = config.SDK_ENV.toLowerCase();
+
+              // account address is set to 0x0 on signup
+              // update this value after sdk is initialized and created
+              // if account address exists on aws auth connect account to sdk
+              if (user.attributes['custom:account_address'] !== '0x0') {
+                // if pk is in local storage then user has already connected but was timed out
+                if (
+                  localStorage.getItem(
+                    `@archanova:${network}:device:private_key`,
+                  )
+                ) {
+                  await sdk.initialize();
+                } else {
+                  try {
+                    const key = daoService.web3.eth.accounts.decrypt(
+                      user.attributes['custom:encrypted_ks'],
+                      values.password,
+                    );
+
+                    const options = {
+                      device: { privateKey: key.privateKey },
+                    };
+
+                    await sdk.initialize(options);
+                  } catch (err) {
+                    console.error(err); // {"error":"account device not found"}
+                  }
+                }
+
                 try {
-                  const key = daoService.web3.eth.accounts.decrypt(
-                    user.attributes['custom:encrypted_ks'],
-                    values.password,
-                  );
-
-                  const options = {
-                    device: { privateKey: key.privateKey },
-                  };
-
-                  await sdk.initialize(options);
+                  sdk.connectAccount(user.attributes['custom:account_address']);
+                  localStorage.setItem('loginType', USER_TYPE.SDK);
+                  setSubmitting(false);
+                  history.push('/proposals');
+                  window.location.reload();
                 } catch (err) {
                   console.error(err); // {"error":"account device not found"}
                 }
-              }
+              } else {
+                // first time logging in
+                await sdk.initialize();
+                const uuid = shortid.generate();
+                const ensLabel = `${encodeURI(user.username)}-${uuid}`;
+                const account = await sdk.createAccount(ensLabel);
+                const accountDevices = await sdk.getConnectedAccountDevices();
 
-              try {
-                sdk.connectAccount(user.attributes['custom:account_address']);
+                // create keystore
+                const network = config.SDK_ENV.toLowerCase();
+                const aValue = JSON.parse(
+                  localStorage.getItem(
+                    `@archanova:${network}:device:private_key`,
+                  ),
+                );
+
+                const store = await daoService.web3.eth.accounts.encrypt(
+                  '0x' + aValue.data,
+                  values.password,
+                );
+
+                await Auth.updateUserAttributes(user, {
+                  'custom:account_address': account.address,
+                  'custom:device_address':
+                    accountDevices.items[0].device.address,
+                  'custom:ens_name': ensLabel,
+                  'custom:named_devices': JSON.stringify({
+                    'OG device': accountDevices.items[0].device.address,
+                  }),
+                  'custom:encrypted_ks': JSON.stringify(store),
+                });
+
                 localStorage.setItem('loginType', USER_TYPE.SDK);
+
                 setSubmitting(false);
-                history.push('/proposals');
+
+                history.push({
+                  pathname: '/',
+                  state: { signUpModal: true },
+                });
                 window.location.reload();
-              } catch (err) {
-                console.error(err); // {"error":"account device not found"}
               }
-            } else {
-              // first time logging in
-              await sdk.initialize();
-              const uuid = shortid.generate();
-              const ensLabel = `${encodeURI(user.username)}-${uuid}`;
-              const account = await sdk.createAccount(ensLabel);
-              const accountDevices = await sdk.getConnectedAccountDevices();
-
-              // create keystore
-              const network = config.SDK_ENV.toLowerCase();
-              const aValue = JSON.parse(
-                localStorage.getItem(
-                  `@archanova:${network}:device:private_key`,
-                ),
-              );
-
-              const store = await daoService.web3.eth.accounts.encrypt(
-                '0x' + aValue.data,
-                values.password,
-              );
-
-              await Auth.updateUserAttributes(user, {
-                'custom:account_address': account.address,
-                'custom:device_address': accountDevices.items[0].device.address,
-                'custom:ens_name': ensLabel,
-                'custom:named_devices': JSON.stringify({
-                  'OG device': accountDevices.items[0].device.address,
-                }),
-                'custom:encrypted_ks': JSON.stringify(store),
-              });
-
-              localStorage.setItem('loginType', USER_TYPE.SDK);
-
+            } catch (err) {
+              setAuthError(err);
               setSubmitting(false);
-
-              history.push({
-                pathname: '/',
-                state: { signUpModal: true },
-              });
-              window.location.reload();
+              console.log('error signing in: ', err);
             }
-          } catch (err) {
-            setAuthError(err);
-            setSubmitting(false);
-            console.log('error signing in: ', err);
-          }
-        }}
-      >
-        {({ isSubmitting, errors, touched }) => {
-          if (isSubmitting) {
-            return <Loading />;
-          }
+          }}
+        >
+          {({ isSubmitting, errors, touched }) => {
+            if (isSubmitting) {
+              return <Loading />;
+            }
 
-          return (
-            <Form className="Form">
-              <h2>Sign in</h2>
-              <Web3SignIn history={history} setCurrentUser={setCurrentUser} />
-              <Link to="/sign-up">Create a new account &gt;</Link>
-              {authError && (
-                <div className="Form__auth-error">
-                  <p className="Danger">{authError.message}</p>
+            return (
+              <Form>
+                <Link to="/sign-up">Create a new account &gt;</Link>
+                {authError && (
+                  <div className="Form__auth-error">
+                    <p className="Danger">{authError.message}</p>
+                  </div>
+                )}
+                <Field name="username">
+                  {({ field, form }) => (
+                    <div className={field.value ? 'Field HasValue' : 'Field '}>
+                      <label>Pseudonym</label>
+                      <input
+                        type="text"
+                        {...field}
+                        onInput={() => setPseudonymTouch(true)}
+                      />
+                    </div>
+                  )}
+                </Field>
+                <ErrorMessage
+                  name="username"
+                  render={(msg) => <div className="Error">{msg}</div>}
+                />
+                <Field type="password" name="password">
+                  {({ field, form }) => (
+                    <div className={field.value ? 'Field HasValue' : 'Field '}>
+                      <label>Password</label>
+                      <input
+                        type="password"
+                        {...field}
+                        onInput={() => setPasswordTouch(true)}
+                      />
+                    </div>
+                  )}
+                </Field>
+                <ErrorMessage
+                  name="password"
+                  render={(msg) => <div className="Error">{msg}</div>}
+                />
+                <div className="ButtonGroup">
+                  <button
+                    type="submit"
+                    className={
+                      Object.keys(errors).length < 1 &&
+                      pseudonymTouch &&
+                      passwordTouch
+                        ? ''
+                        : 'Disabled'
+                    }
+                    disabled={isSubmitting}
+                  >
+                    Sign In
+                  </button>
+                  {/* Commented out until possible <Link to="/forgot-password">Forgot Password?</Link> */}
                 </div>
-              )}
-              <Field name="username">
-                {({ field, form }) => (
-                  <div className={field.value ? 'Field HasValue' : 'Field '}>
-                    <label>Pseudonym</label>
-                    <input
-                      type="text"
-                      {...field}
-                      onInput={() => setPseudonymTouch(true)}
-                    />
-                  </div>
-                )}
-              </Field>
-              <ErrorMessage
-                name="username"
-                render={(msg) => <div className="Error">{msg}</div>}
-              />
-              <Field type="password" name="password">
-                {({ field, form }) => (
-                  <div className={field.value ? 'Field HasValue' : 'Field '}>
-                    <label>Password</label>
-                    <input
-                      type="password"
-                      {...field}
-                      onInput={() => setPasswordTouch(true)}
-                    />
-                  </div>
-                )}
-              </Field>
-              <ErrorMessage
-                name="password"
-                render={(msg) => <div className="Error">{msg}</div>}
-              />
-              <div className="ButtonGroup">
-                <button
-                  type="submit"
-                  className={
-                    Object.keys(errors).length < 1 &&
-                    pseudonymTouch &&
-                    passwordTouch
-                      ? ''
-                      : 'Disabled'
-                  }
-                  disabled={isSubmitting}
-                >
-                  Sign In
-                </button>
-                {/* Commented out until possible <Link to="/forgot-password">Forgot Password?</Link> */}
-              </div>
-            </Form>
-          );
-        }}
-      </Formik>
+              </Form>
+            );
+          }}
+        </Formik>
+      )}
     </div>
   );
 };
