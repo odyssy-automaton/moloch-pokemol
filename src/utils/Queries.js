@@ -54,6 +54,44 @@ export const GET_PROPOSALS_QUERY = gql`
   }
 `;
 
+export const GET_ACTIVE_PROPOSALS_QUERY = gql`
+  query proposals($skip: Int) {
+    proposals(
+      orderBy: proposalIndex, 
+      orderDirection: desc, 
+      first: 100, 
+      skip: $skip, 
+      where: { processed: false }
+    ) {
+      id
+      timestamp
+      startingPeriod
+      tokenTribute
+      sharesRequested
+      yesVotes
+      noVotes
+      applicantAddress
+      proposalIndex
+      didPass
+      aborted
+      details
+      processed
+      status @client
+      gracePeriod @client
+      votingEnds @client
+      votingStarts @client
+      readyForProcessing @client
+      votes {
+        memberAddress
+        uintVote
+        member {
+          shares
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PROPOSAL_QUERY = gql`
   query proposal($id: String!) {
     proposal(id: $id) {

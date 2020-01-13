@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -12,21 +12,60 @@ import {
 import Loading from '../shared/Loading';
 
 import { GET_METADATA } from '../../utils/Queries';
-import { withApollo } from 'react-apollo';
+import { withApollo, useQuery } from 'react-apollo';
+import ValueDisplay from '../shared/ValueDisplay';
+import { GET_ACTIVE_PROPOSALS_QUERY } from '../../utils/Queries';
+import { weiToEth, anyToBN, ethToWei } from '@netgum/utils';
 
 const ProposalForm = ({ history, client }) => {
   const [daoService] = useContext(DaoServiceContext);
-  const { proposalDeposit } = client.cache.readQuery({ query: GET_METADATA });
+  const {
+    proposalDeposit,
+    totalShares,
+    guildBankValue,
+  } = client.cache.readQuery({ query: GET_METADATA });
   const [loading, setLoading] = useContext(LoaderContext);
   const [currentWallet] = useContext(CurrentWalletContext);
+  const [estimatedProposalValue, setEstimatedProposalValue] = useState(0);
+
+  const { loading: activeProposalsLoading, error, data } = useQuery(
+    GET_ACTIVE_PROPOSALS_QUERY,
+  );
+
+  const calculateEstimatedProposalValue = (
+    numSharesRequested,
+    tokenTribute,
+  ) => {
+    let guildBankValuePlusPending = ethToWei(guildBankValue).add(ethToWei(tokenTribute));
+    let totalSharesPlusPending = totalShares + +numSharesRequested;
+    for (const proposal of data.proposals) {
+      // if proposal is likely passing, add tribute and shares
+      if (+proposal.yesVotes > +proposal.noVotes) {
+        guildBankValuePlusPending.add(anyToBN(proposal.tokenTribute));
+        totalSharesPlusPending += +proposal.sharesRequested;
+      }
+    }
+  
+    const estimatedShareValue = parseFloat(
+      weiToEth(
+        anyToBN(guildBankValuePlusPending)
+          .div(anyToBN(totalSharesPlusPending)),
+      ),
+    );
+
+    const estimatedProposal = estimatedShareValue * numSharesRequested;
+    return estimatedProposal;
+  };
+
+  if (activeProposalsLoading) return <Loading />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <div>
       {loading && <Loading />}
 
       <div>
-        {+currentWallet.tokenBalance >= +proposalDeposit &&
-        +currentWallet.allowance >= +proposalDeposit ? (
+        {+currentWallet.tokenBalance >= 0 && +currentWallet.allowance >= 0 ? (
           <Formik
             initialValues={{
               title: '',
@@ -34,7 +73,7 @@ const ProposalForm = ({ history, client }) => {
               link: '',
               applicant: '',
               tokenTribute: 0,
-              sharesRequested: 0,
+              sharesRequested: '',
             }}
             validate={(values) => {
               const errors = {};
@@ -51,6 +90,9 @@ const ProposalForm = ({ history, client }) => {
                 errors.applicant = 'Required';
               }
 
+              const estimated = calculateEstimatedProposalValue(values.sharesRequested, values.tokenTribute);
+              setEstimatedProposalValue(estimated);
+
               return errors;
             }}
             onSubmit={async (values, { setSubmitting }) => {
@@ -59,7 +101,7 @@ const ProposalForm = ({ history, client }) => {
               try {
                 await daoService.mcDao.submitProposal(
                   values.applicant,
-                  daoService.web3.utils.toWei(values.tokenTribute.toString()),
+                  ethToWei(values.tokenTribute.toString()),
                   values.sharesRequested + '',
                   JSON.stringify({
                     id: uuid,
@@ -80,7 +122,7 @@ const ProposalForm = ({ history, client }) => {
           >
             {({ isSubmitting }) => (
               <Form className="Form">
-                <h3>Proposal deposit: {proposalDeposit} token</h3>
+                <h3>Proposal Deposit: <ValueDisplay value={proposalDeposit} /></h3>
                 <Field name="title">
                   {({ field, form }) => (
                     <div className={field.value ? 'Field HasValue' : 'Field '}>
@@ -136,7 +178,7 @@ const ProposalForm = ({ history, client }) => {
                         Token Tribute (Amount must be approved by Applicant's
                         Address)
                       </label>
-                      <input type="number" {...field} />
+                      <input min="0" type="number" {...field} />
                     </div>
                   )}
                 </Field>
@@ -156,6 +198,10 @@ const ProposalForm = ({ history, client }) => {
                     </div>
                   )}
                 </Field>
+                <span>
+                  {' '}
+                  Estimated Value: <ValueDisplay value={estimatedProposalValue} />
+                </span>
                 <ErrorMessage name="sharesRequested">
                   {(msg) => <div className="Error">{msg}</div>}
                 </ErrorMessage>
