@@ -61,7 +61,7 @@ const UserBalance = (props) => {
           currentUser.attributes['custom:account_address'] === memberAddress,
       );
     })();
-  }, [currentUser, daoService.mcDao]);
+  }, [currentUser, daoService.mcDao, daoService.mcDaoService]);
 
   const onCopy = () => {
     setDelay(2500);
