@@ -65,7 +65,7 @@ const ProposalForm = ({ history, client }) => {
       {loading && <Loading />}
 
       <div>
-        {+currentWallet.tokenBalance >= 0 && +currentWallet.allowance >= 0 ? (
+        {+currentWallet.tokenBalance >= 0 && +currentWallet.allowance >= proposalDeposit ? (
           <Formik
             initialValues={{
               title: '',
