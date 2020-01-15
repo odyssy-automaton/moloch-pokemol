@@ -65,10 +65,10 @@ Build the resources:
 
 ```bash
 staging/kovan:
-$ serverless deploy
+$ serverless deploy --stage prod
 
 prod/mainnet
-$ serverless deploy --stage prod
+$ serverless deploy --stage mainnet
 ```
 
 Manually add custom field to the Cognito user pool. in the AWS console navigate to cognito/users and select the new pool that was created. You can add fields in the Attibutes section.

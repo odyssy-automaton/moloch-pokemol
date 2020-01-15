@@ -1,11 +1,7 @@
 service: moloch-pokemol-v1
 
-plugins:
-  - serverless-single-page-app-plugin
-
 custom:
   stage: ${opt:stage, self:provider.stage}
-  s3HostingBucket: ${self:service}-${self:custom.stage}-hosting
 
 provider:
   name: aws
@@ -15,7 +11,5 @@ provider:
   profile: default
 
 resources:
-  - ${file(resources/s3-bucket.yml)}
-  - ${file(resources/s3-hosting-bucket.yml)}
   - ${file(resources/cognito-user-pool.yml)}
   - ${file(resources/cognito-identity-pool.yml)}
