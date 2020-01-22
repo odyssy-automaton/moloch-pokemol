@@ -36,7 +36,9 @@ const ProposalForm = ({ history, client }) => {
     numSharesRequested,
     tokenTribute,
   ) => {
-    let guildBankValuePlusPending = ethToWei(guildBankValue).add(ethToWei(tokenTribute));
+    let guildBankValuePlusPending = ethToWei(guildBankValue).add(
+      ethToWei(tokenTribute),
+    );
     let totalSharesPlusPending = totalShares + +numSharesRequested;
     for (const proposal of data.proposals) {
       // if proposal is likely passing, add tribute and shares
@@ -45,11 +47,10 @@ const ProposalForm = ({ history, client }) => {
         totalSharesPlusPending += +proposal.sharesRequested;
       }
     }
-  
+
     const estimatedShareValue = parseFloat(
       weiToEth(
-        anyToBN(guildBankValuePlusPending)
-          .div(anyToBN(totalSharesPlusPending)),
+        anyToBN(guildBankValuePlusPending).div(anyToBN(totalSharesPlusPending)),
       ),
     );
 
@@ -65,7 +66,8 @@ const ProposalForm = ({ history, client }) => {
       {loading && <Loading />}
 
       <div>
-        {+currentWallet.tokenBalance >= 0 && +currentWallet.allowance >= proposalDeposit ? (
+        {+currentWallet.tokenBalance >= 0 &&
+        +currentWallet.allowance >= proposalDeposit ? (
           <Formik
             initialValues={{
               title: '',
@@ -90,7 +92,10 @@ const ProposalForm = ({ history, client }) => {
                 errors.applicant = 'Required';
               }
 
-              const estimated = calculateEstimatedProposalValue(values.sharesRequested, values.tokenTribute);
+              const estimated = calculateEstimatedProposalValue(
+                values.sharesRequested,
+                values.tokenTribute,
+              );
               setEstimatedProposalValue(estimated);
 
               return errors;
@@ -122,7 +127,9 @@ const ProposalForm = ({ history, client }) => {
           >
             {({ isSubmitting }) => (
               <Form className="Form">
-                <h3>Proposal Deposit: <ValueDisplay value={proposalDeposit} /></h3>
+                <h3>
+                  Proposal Deposit: <ValueDisplay value={proposalDeposit} />
+                </h3>
                 <Field name="title">
                   {({ field, form }) => (
                     <div className={field.value ? 'Field HasValue' : 'Field '}>
@@ -175,8 +182,7 @@ const ProposalForm = ({ history, client }) => {
                       }
                     >
                       <label>
-                        Token Tribute (Amount must be approved by Applicant's
-                        Address)
+                        Token Tribute (will fail if not approved by applicant)
                       </label>
                       <input min="0" type="number" {...field} />
                     </div>
@@ -198,14 +204,19 @@ const ProposalForm = ({ history, client }) => {
                     </div>
                   )}
                 </Field>
-                <span>
+                <div className="ProposalEstimate">
                   {' '}
-                  Estimated Value: <ValueDisplay value={estimatedProposalValue} />
-                </span>
+                  Estimated Value:{' '}
+                  <ValueDisplay value={estimatedProposalValue} />
+                </div>
                 <ErrorMessage name="sharesRequested">
                   {(msg) => <div className="Error">{msg}</div>}
                 </ErrorMessage>
-                <button type="submit" disabled={isSubmitting}>
+                <button
+                  className="ProposalSubmitButton"
+                  type="submit"
+                  disabled={isSubmitting}
+                >
                   Submit
                 </button>
               </Form>
