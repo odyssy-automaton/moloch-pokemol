@@ -205,7 +205,6 @@ const ProposalForm = ({ history, client }) => {
                   )}
                 </Field>
                 <div className="ProposalEstimate">
-                  {' '}
                   Estimated Value:{' '}
                   <ValueDisplay value={estimatedProposalValue} />
                 </div>
