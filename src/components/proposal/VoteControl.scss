@@ -49,13 +49,13 @@
     }
   }
   &.Yes {
-    border-color: $primary;
+    border-color: $success;
     &:hover {
-      border-color: $primary;
-      background-color: $primary;
+      border-color: $success;
+      background-color: $success;
     }
     &.Voted {
-      background-color: $primary;
+      background-color: $success;
     }
   }
   &.No {
