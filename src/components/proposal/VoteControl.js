@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import StackedVote from './StackedVote';
 
-import VoteYes from '../../assets/star-struck.png';
+import VoteYes from '../../assets/thumbs-up.png';
 import VoteNo from '../../assets/thumbs-down.png';
 
 import './VoteControl.scss';
@@ -43,17 +43,15 @@ const VoteControl = ({ submitVote, proposal }) => {
         return (
           vote.memberAddress &&
           vote.memberAddress.toLowerCase() ===
-          currentWallet.addrByDelegateKey.toLowerCase()
+            currentWallet.addrByDelegateKey.toLowerCase()
         );
       })
     );
-
   };
 
-
   const votedYes = (proposal) => {
-    // used for className 
-    
+    // used for className
+
     return (currentUser &&
       usersVote(proposal.votes) &&
       usersVote(proposal.votes)[0] &&
@@ -64,7 +62,7 @@ const VoteControl = ({ submitVote, proposal }) => {
   };
 
   const votedNo = (proposal) => {
-    // used for className 
+    // used for className
 
     return (currentUser &&
       usersVote(proposal.votes) &&
